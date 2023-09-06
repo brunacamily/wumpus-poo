@@ -1,7 +1,7 @@
 
 import java.awt.Point;
 
-public class Agente {
+public abstract class Agente {
     
     private Grid grid;
     private Point position;
