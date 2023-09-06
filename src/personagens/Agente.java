@@ -1,5 +1,7 @@
 package personagens;
 
+
+
 public class Agente {
     
     private Grid grid;
