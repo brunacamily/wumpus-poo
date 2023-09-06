@@ -12,18 +12,60 @@ public class GameManager {
   private static final String MOVE_LEFT = "4";
 
   private boolean gameOver = false;
+  private int turnCount;
 
   private Point position;
   private Grid grid;
   private Scanner scanner;
 
+  public GameManager() {
+    scanner = new Scanner(System.in);
+  }
+
   public void startGame() {
     System.out.println("Game Started");
     position = new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y);
     grid = new Grid(GRID_SIZE, new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
-    scanner = new Scanner(System.in);
+    turnCount = 1;
+    beginTurns();
+  }
 
+  public void endGame() {
+    String input = "0";
+
+    while (!input.equals("2")) {
+      System.out.println("Fim de jogo. Deseja jogar novamente?");
+      System.out.println("1. Sim");
+      System.out.println("2. Não");
+      input = scanner.nextLine();
+
+      if (input.equals("1")) {
+        startGame();
+      }
+
+      if (input.equals("2")) {
+        scanner.close();
+      }
+    }
+  }
+
+  private void beginTurns() {
     while (!gameOver) {
+      System.out.println();
+      System.out.println("Turno " + turnCount);
+      runPlayerTurn();
+      runEnemyTurn();
+      turnCount++;
+    }
+
+    endGame();
+  }
+
+  private void runPlayerTurn() {
+    boolean hasInputSucceeded = false;
+
+    while (!hasInputSucceeded) {
+      System.out.println();
       System.out.printf("Posição atual: (%d, %d)\n", position.x, position.y);
       System.out.println("Escolha a direção para se mover:");
       System.out.println("1. Cima:");
@@ -33,35 +75,45 @@ public class GameManager {
 
       String input = scanner.nextLine();
 
-      makeAction(input);
+      hasInputSucceeded = makeAction(input);
+      if (!hasInputSucceeded) {
+        System.out.println();
+        System.out.println("Ação mal sucedida. Tente novamente.");
+      }
     }
-
-    scanner.close();
   }
 
-  private void makeAction(String input) {
+  private void runEnemyTurn() {
+    System.out.println();
+    System.out.println("Turno do inimigo");
+  }
+
+  private boolean makeAction(String input) {
     if (input.equals(MOVE_UP)) {
-      System.out.println("move up");
-      setPosition(new Point(position.x, position.y + 1));
+      return setPosition(new Point(position.x, position.y + 1));
     }
     if (input.equals(MOVE_RIGHT)) {
-      setPosition(new Point(position.x + 1, position.y));
+      return setPosition(new Point(position.x + 1, position.y));
     }
     if (input.equals(MOVE_DOWN)) {
-      setPosition(new Point(position.x, position.y - 1));
+      return setPosition(new Point(position.x, position.y - 1));
     }
     if (input.equals(MOVE_LEFT)) {
-      setPosition(new Point(position.x - 1, position.y));
+      return setPosition(new Point(position.x - 1, position.y));
     }
+
+    return false;
   }
 
-  private void setPosition(Point newPosition) {
+  private boolean setPosition(Point newPosition) {
     if (!grid.isValidPosition(newPosition)) {
-      System.out.println("Posição inválida.");
-      return;
+      System.out.println();
+      System.out.println("Posição nova inválida.");
+      return false;
     }
 
     position = newPosition;
     grid.discoverTile(newPosition);
+    return true;
   }
 }
