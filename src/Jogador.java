@@ -1,6 +1,6 @@
 import java.awt.Point;
 
-public class Jogador extends Agente implements GameManager {
+public class Jogador extends Agente {
 
     Jogador(){
 

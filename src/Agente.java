@@ -1,20 +1,13 @@
-
 import java.awt.Point;
 
-public abstract class Agente {
-    
-    private Grid grid;
-    private Point position;
-    
-    public void setPosition( Point newPosition){
-        if(!grid.isValidPosition(newPosition)){
-            System.out.println("Posição inválida.");
-            return;
-        }
-        position = newPosition;
-    }
+public class Agente {
+  private Point position;
 
-    public Point getPosition(Agente agent){
-        return agent.position;
-    }
+  public Point getPosition() {
+    return position;
+  }
+
+  public void setPosition(Point newPosition) {
+    position = newPosition;
+  }
 }
