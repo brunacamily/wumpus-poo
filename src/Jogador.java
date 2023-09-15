@@ -1,22 +1,25 @@
-import java.awt.Point;
 
 public class Jogador extends Agente {
     private int vida;
     private int lanterna;
-    private boolean flechas;
+    private int flechas;
     private Ouro ouro;
     private Madeira madeira;
     
     public Jogador(){
         vida = 10;
         lanterna = 2;
-        flechas = true;
-        ouro = new Ouro();
-        madeira = new Madeira();
+        flechas = 1;
+        ouro = new Ouro(this.getPosition());
+        madeira = new Madeira(this.getPosition());
     }
     
     public void pegarMadeira(){
         this.madeira.setMadeira();
+    }
+    
+    public void fazerFlecha(){
+        this.flechas++;
     }
     
     public void pegarouro(){

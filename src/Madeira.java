@@ -10,21 +10,12 @@ import java.awt.Point;
  *
  * @author bruna
  */
-public class Madeira {
+public class Madeira extends Item {
     private int madeira;
-    private Point position;
-    
-    public Madeira(){
-        
-    }
-    
+   
     public Madeira(Point newPosition){
-        madeira = 0;
-        position = newPosition;
-    }
-    
-    public Point getPosition() {
-      return position;
+        super(newPosition);
+        madeira = 0; 
     }
     
     public int  getMadeira(){

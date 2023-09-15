@@ -10,19 +10,14 @@ import java.awt.Point;
  *
  * @author bruna
  */
-public class Ouro extends Item {
-    private int ouro;
-
-    public Ouro( Point newPosition ) {
-        super(newPosition);
-        this.ouro = 1;
+public class Item {
+    private Point position;
+    
+    public Item(Point newPosition){
+        position = newPosition;
     }
     
-    public int  getOuro(){
-        return this.ouro;
-    }
-    
-    public void setOuro(){
-        ouro++;
-    }
+    public Point getPosition() {
+    return position;
+    }   
 }
