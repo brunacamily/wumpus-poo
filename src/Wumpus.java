@@ -22,8 +22,9 @@ public class Wumpus {
       return vida;
   }
   
-  public void matarWumpus(){
+  public boolean matarWumpus(){
       energia = false;
+      return energia;
   }
   
   

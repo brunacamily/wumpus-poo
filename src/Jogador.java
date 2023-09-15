@@ -23,7 +23,11 @@ public class Jogador extends Agente {
         this.ouro.setOuro();
     }
     
-    public void flechada(Wumpus w){
+    public void flechadaWmpus(Wumpus w){
+        w.matarWumpus();
+    }
+    
+    public void flechadaWmpus(Wumpus2 w){
         w.matarWumpus();
     }
 }

@@ -13,8 +13,11 @@ import java.awt.Point;
 
 public class Wumpus2 {
     private Point position;
+    private boolean energia;   
     
-    
+    public Wumpus2(){
+        energia = true;
+    }
  
     public Point getPosition() {
     return position;
@@ -28,4 +31,10 @@ public class Wumpus2 {
       vida = Math.round(vida/2);
       return vida;
   }
+  
+  public boolean matarWumpus(){
+      energia = false;
+      return energia;
+  }
+  
 }
