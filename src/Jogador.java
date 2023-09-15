@@ -1,9 +1,29 @@
 import java.awt.Point;
 
 public class Jogador extends Agente {
-
-    Jogador(){
-
+    private int vida;
+    private int lanterna;
+    private boolean flechas;
+    private Ouro ouro;
+    private Madeira madeira;
+    
+    public Jogador(){
+        vida = 10;
+        lanterna = 2;
+        flechas = true;
+        ouro = new Ouro();
+        madeira = new Madeira();
     }
     
+    public void pegarMadeira(){
+        this.madeira.setMadeira();
+    }
+    
+    public void pegarouro(){
+        this.ouro.setOuro();
+    }
+    
+    public void flechada(Wumpus w){
+        w.matarWumpus();
+    }
 }
