@@ -1,3 +1,4 @@
+
 public class Game {
 	/**
 	 * @param args
@@ -6,6 +7,7 @@ public class Game {
 		GameManager gameManager = new GameManager();
 		System.out.println("Hello World");
 
-		gameManager.startGame();
+		gameManager.startGame();   
 	}
 }
+
