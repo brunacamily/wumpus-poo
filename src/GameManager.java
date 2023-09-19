@@ -14,8 +14,9 @@ public class GameManager {
 
   private boolean gameOver = false;
   private int turnCount;
-
-  private Point position;
+  
+  private Jogador jogador;
+  private Wumpus wumpus;
   private Grid grid;
   private Scanner scanner;
 
@@ -25,7 +26,9 @@ public class GameManager {
 
   public void startGame() {
     System.out.println("Game Started");
-    position = new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y);
+    jogador = new Jogador();
+    jogador.setPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
+    wumpus = new Wumpus(new Point(14, 14));
     grid = new Grid(GRID_SIZE, new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
     turnCount = 1;
     beginTurns();
@@ -56,6 +59,7 @@ public class GameManager {
       System.out.println("Turno " + turnCount);
       runPlayerTurn();
       runEnemyTurn();
+      System.out.println("wumpus1: " + wumpus.getPosition());
       turnCount++;
     }
 
@@ -67,7 +71,7 @@ public class GameManager {
 
     while (!hasInputSucceeded) {
       System.out.println();
-      System.out.printf("Posição atual: (%d, %d)\n", position.x, position.y);
+      System.out.printf("Posição atual: (%d, %d)\n", jogador.getPosition().x, jogador.getPosition().y);
       System.out.println("Escolha a direção para se mover:");
       System.out.println("1. Cima:");
       System.out.println("2. Direita:");
@@ -85,22 +89,62 @@ public class GameManager {
   }
 
   private void runEnemyTurn() {
-    System.out.println();
-    System.out.println("Turno do inimigo");
+    Boolean b = false;
+    if ( (jogador.getPosition().x - wumpus.getPosition().x) < (jogador.getPosition().y - wumpus.getPosition().y) ) {
+      if((jogador.getPosition().x - wumpus.getPosition().x) < 0) {  
+        b = grid.isValidPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
+        if(b == false){
+          wumpus.setPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
+        } else {
+          wumpus.setPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
+        }
+      }else{ 
+        b = grid.isValidPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
+        if(b == false){
+          wumpus.setPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
+        } else {
+          wumpus.setPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
+        }
+      }
+    } else if ( (jogador.getPosition().x - wumpus.getPosition().x) > (jogador.getPosition().y - wumpus.getPosition().y) ) {
+      if((jogador.getPosition().y - wumpus.getPosition().y) < 0) {
+        b = grid.isValidPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y - 1 ));
+        if(b == false){
+          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y + 1 ));
+        } else {
+          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y - 1 ));
+        }
+      }else{ 
+        b = grid.isValidPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y + 1 ));
+        if(b == false){
+          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y - 1 ));
+        } else {
+          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y + 1 ));
+        }
+      }
+    }else{
+      b = grid.isValidPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
+      if(b == false){
+        wumpus.setPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
+      } else {
+        wumpus.setPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
+      }
+    }
   }
+  
 
   private boolean makeAction(String input) {
     if (input.equals(MOVE_UP)) {
-      return setPosition(new Point(position.x, position.y + 1));
+      return setPosition(new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
     }
     if (input.equals(MOVE_RIGHT)) {
-      return setPosition(new Point(position.x + 1, position.y));
+      return setPosition(new Point(jogador.getPosition().x + 1, jogador.getPosition().y));
     }
     if (input.equals(MOVE_DOWN)) {
-      return setPosition(new Point(position.x, position.y - 1));
+      return setPosition(new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
     }
     if (input.equals(MOVE_LEFT)) {
-      return setPosition(new Point(position.x - 1, position.y));
+      return setPosition(new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
     }
 
     return false;
@@ -113,7 +157,7 @@ public class GameManager {
       return false;
     }
 
-    position = newPosition;
+    jogador.setPosition(newPosition);
     grid.discoverTile(newPosition);
     return true;
   }
