@@ -1,36 +1,62 @@
 
 public class Jogador extends Agente {
-    private int vida;
-    private int lanterna;
-    private int flechas;
-    private Ouro ouro;
-    private Madeira madeira;
+    private int health;
+    private int battery;
+    private int arrows;
+    private boolean hasGold;
+    private int woods;
+    private boolean hasCarryingWood;
     
     public Jogador(){
-        vida = 10;
-        lanterna = 2;
-        flechas = 1;
-        ouro = new Ouro(this.getPosition());
-        madeira = new Madeira(this.getPosition());
+        health = 10;
+        battery = 2;
+        arrows = 0;
+        hasGold = false;
+        woods = 0;
+        hasCarryingWood = false;
     }
     
-    public void pegarMadeira(){
-        this.madeira.setMadeira();
+    public void addWood() {
+        woods++;
     }
     
-    public void fazerFlecha(){
-        this.flechas++;
+    public void addArrow(){
+        arrows++;
     }
     
-    public void pegarouro(){
-        this.ouro.setOuro();
+    public void addGold(){
+        hasGold = true;
     }
     
-    public void flechadaWmpus(Wumpus w){
-        w.matarWumpus();
+    public void arrowAttack(Wumpus wumpus){
+        arrows--;
+        // TODO: Checar se wumpus está na posição de disparo
+        if (true) {
+            wumpus.killWumpus();
+        } 
     }
-    
-    public void flechadaWmpus(Wumpus2 w){
-        w.matarWumpus();
+
+    public int getHealth() {
+        return health;
+    }
+
+    public int getBattery() {
+        return battery;
+    }
+
+    public int getArrows() {
+        return arrows;
+    }
+
+    public boolean isHasGold() {
+        return hasGold;
+    }
+
+    public int getWoods() {
+        return woods;
+    }
+
+    public boolean isHasCarryingWood() {
+        return hasCarryingWood;
     }
 }
