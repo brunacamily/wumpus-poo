@@ -14,7 +14,7 @@ public class GameManager {
 
   private boolean gameOver = false;
   private int turnCount;
-  
+
   private Jogador jogador;
   private Wumpus wumpus;
   private Grid grid;
@@ -59,7 +59,6 @@ public class GameManager {
       System.out.println("Turno " + turnCount);
       runPlayerTurn();
       runEnemyTurn();
-      System.out.println("wumpus1: " + wumpus.getPosition());
       turnCount++;
     }
 
@@ -71,7 +70,11 @@ public class GameManager {
 
     while (!hasInputSucceeded) {
       System.out.println();
-      System.out.printf("Posição atual: (%d, %d)\n", jogador.getPosition().x, jogador.getPosition().y);
+      System.out.printf(
+          "Posição atual: (%d, %d)\n",
+          jogador.getPosition().x,
+          jogador.getPosition().y);
+
       System.out.println("Escolha a direção para se mover:");
       System.out.println("1. Cima:");
       System.out.println("2. Direita:");
@@ -89,68 +92,55 @@ public class GameManager {
   }
 
   private void runEnemyTurn() {
-    Boolean b = false;
-    if ( (jogador.getPosition().x - wumpus.getPosition().x) < (jogador.getPosition().y - wumpus.getPosition().y) ) {
-      if((jogador.getPosition().x - wumpus.getPosition().x) < 0) {  
-        b = grid.isValidPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
-        if(b == false){
-          wumpus.setPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
-        } else {
-          wumpus.setPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
-        }
-      }else{ 
-        b = grid.isValidPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
-        if(b == false){
-          wumpus.setPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
-        } else {
-          wumpus.setPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
-        }
-      }
-    } else if ( (jogador.getPosition().x - wumpus.getPosition().x) > (jogador.getPosition().y - wumpus.getPosition().y) ) {
-      if((jogador.getPosition().y - wumpus.getPosition().y) < 0) {
-        b = grid.isValidPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y - 1 ));
-        if(b == false){
-          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y + 1 ));
-        } else {
-          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y - 1 ));
-        }
-      }else{ 
-        b = grid.isValidPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y + 1 ));
-        if(b == false){
-          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y - 1 ));
-        } else {
-          wumpus.setPosition(new Point( wumpus.getPosition().x, wumpus.getPosition().y + 1 ));
-        }
-      }
-    }else{
-      b = grid.isValidPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
-      if(b == false){
-        wumpus.setPosition(new Point( wumpus.getPosition().x + 1 , wumpus.getPosition().y ));
-      } else {
-        wumpus.setPosition(new Point( wumpus.getPosition().x - 1 , wumpus.getPosition().y ));
-      }
+    System.out.printf(
+        "Posição inicial wumpus: (%d, %d)\n",
+        wumpus.getPosition().x,
+        wumpus.getPosition().y);
+
+    Point playerPosition = jogador.getPosition();
+    Point wumpusPosition = wumpus.getPosition();
+    double directionX = (double) playerPosition.x - wumpusPosition.x;
+    double directionY = (double) playerPosition.y - wumpusPosition.y;
+    System.out.println(directionX + ", " + directionY);
+
+    int normalizedX = directionX >= 0
+        ? (int) Math.ceil(directionX / 14)
+        : (int) Math.floor(directionX / 14);
+
+    int normalizedY = directionY >= 0
+        ? (int) Math.ceil(directionY / 14)
+        : (int) Math.floor(directionY / 14);
+
+    if (Math.abs(directionX) < Math.abs(directionY)) {
+      setWumpusPosition(new Point(wumpusPosition.x, wumpusPosition.y + normalizedY));
+      return;
     }
+
+    setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
   }
-  
 
   private boolean makeAction(String input) {
     if (input.equals(MOVE_UP)) {
-      return setPosition(new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
+      return setPlayerPosition(
+          new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
     }
     if (input.equals(MOVE_RIGHT)) {
-      return setPosition(new Point(jogador.getPosition().x + 1, jogador.getPosition().y));
+      return setPlayerPosition(
+          new Point(jogador.getPosition().x + 1, jogador.getPosition().y));
     }
     if (input.equals(MOVE_DOWN)) {
-      return setPosition(new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
+      return setPlayerPosition(
+          new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
     }
     if (input.equals(MOVE_LEFT)) {
-      return setPosition(new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
+      return setPlayerPosition(
+          new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
     }
 
     return false;
   }
 
-  private boolean setPosition(Point newPosition) {
+  private boolean setPlayerPosition(Point newPosition) {
     if (!grid.isValidPosition(newPosition)) {
       System.out.println();
       System.out.println("Posição nova inválida.");
@@ -160,5 +150,13 @@ public class GameManager {
     jogador.setPosition(newPosition);
     grid.discoverTile(newPosition);
     return true;
+  }
+
+  private void setWumpusPosition(Point newPosition) {
+    wumpus.setPosition(newPosition);
+    System.out.printf(
+        "Posição final wumpus: (%d, %d)\n",
+        wumpus.getPosition().x,
+        wumpus.getPosition().y);
   }
 }
