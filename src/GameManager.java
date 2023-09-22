@@ -101,7 +101,6 @@ public class GameManager {
     Point wumpusPosition = wumpus.getPosition();
     double directionX = (double) playerPosition.x - wumpusPosition.x;
     double directionY = (double) playerPosition.y - wumpusPosition.y;
-    System.out.println(directionX + ", " + directionY);
 
     int normalizedX = directionX >= 0
         ? (int) Math.ceil(directionX / 14)
