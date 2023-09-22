@@ -1,15 +1,12 @@
-import ui.App;
-
 public class Game {
   /**
    * @param args
    */
   public static void main(String[] args) {
-    GameManager gameManager = new GameManager();
     System.out.println("Hello World");
+    App app = new App();
 
-    new App();
-
+    GameManager gameManager = new GameManager(app);
     gameManager.startGame();
   }
 }

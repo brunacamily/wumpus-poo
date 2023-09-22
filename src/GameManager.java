@@ -4,13 +4,17 @@ import java.awt.Point;
 
 public class GameManager {
   private static final int GRID_SIZE = 15;
-  private static final int INITIAL_POSITION_X = 0;
+  private static final int INITIAL_POSITION_X = 14;
   private static final int INITIAL_POSITION_Y = 0;
+  private static final int INITIAL_WUMPUS_POSITION_X = 0;
+  private static final int INITIAL_WUMPUS_POSITION_Y = 14;
 
   private static final String MOVE_UP = "1";
   private static final String MOVE_RIGHT = "2";
   private static final String MOVE_DOWN = "3";
   private static final String MOVE_LEFT = "4";
+
+  private App uiApp;
 
   private boolean gameOver = false;
   private int turnCount;
@@ -20,16 +24,20 @@ public class GameManager {
   private Grid grid;
   private Scanner scanner;
 
-  public GameManager() {
+  public GameManager(App uiApp) {
     scanner = new Scanner(System.in);
+    this.uiApp = uiApp;
   }
 
   public void startGame() {
     System.out.println("Game Started");
+    grid = new Grid(GRID_SIZE);
     jogador = new Jogador();
-    jogador.setPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
-    wumpus = new Wumpus(new Point(14, 14));
-    grid = new Grid(GRID_SIZE, new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
+    wumpus = new Wumpus();
+
+    setPlayerPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
+    setWumpusPosition(new Point(INITIAL_WUMPUS_POSITION_X, INITIAL_WUMPUS_POSITION_Y));
+
     turnCount = 1;
     beginTurns();
   }
@@ -55,6 +63,7 @@ public class GameManager {
 
   private void beginTurns() {
     while (!gameOver) {
+      uiApp.update(gameOver, jogador, grid);
       System.out.println();
       System.out.println("Turno " + turnCount);
       runPlayerTurn();
@@ -69,12 +78,6 @@ public class GameManager {
     boolean hasInputSucceeded = false;
 
     while (!hasInputSucceeded) {
-      System.out.println();
-      System.out.printf(
-          "Posição atual: (%d, %d)\n",
-          jogador.getPosition().x,
-          jogador.getPosition().y);
-
       System.out.println("Escolha a direção para se mover:");
       System.out.println("1. Cima:");
       System.out.println("2. Direita:");
@@ -92,11 +95,6 @@ public class GameManager {
   }
 
   private void runEnemyTurn() {
-    System.out.printf(
-        "Posição inicial wumpus: (%d, %d)\n",
-        wumpus.getPosition().x,
-        wumpus.getPosition().y);
-
     Point playerPosition = jogador.getPosition();
     Point wumpusPosition = wumpus.getPosition();
     double directionX = (double) playerPosition.x - wumpusPosition.x;
@@ -121,19 +119,19 @@ public class GameManager {
   private boolean makeAction(String input) {
     if (input.equals(MOVE_UP)) {
       return setPlayerPosition(
-          new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
+          new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
     }
     if (input.equals(MOVE_RIGHT)) {
       return setPlayerPosition(
-          new Point(jogador.getPosition().x + 1, jogador.getPosition().y));
+          new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
     }
     if (input.equals(MOVE_DOWN)) {
       return setPlayerPosition(
-          new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
+          new Point(jogador.getPosition().x + 1, jogador.getPosition().y - 1));
     }
     if (input.equals(MOVE_LEFT)) {
       return setPlayerPosition(
-          new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
+          new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
     }
 
     return false;
@@ -146,16 +144,30 @@ public class GameManager {
       return false;
     }
 
+    if (jogador.getPosition() != null) {
+      grid.removeTileEntity(jogador.getPosition(), "Player");
+    }
+
     jogador.setPosition(newPosition);
+    System.out.printf(
+        "Posição atual: (%d, %d)\n",
+        jogador.getPosition().x,
+        jogador.getPosition().y);
     grid.discoverTile(newPosition);
+    grid.addTileEntity(newPosition, "Player");
     return true;
   }
 
   private void setWumpusPosition(Point newPosition) {
+    if (wumpus.getPosition() != null) {
+      grid.removeTileEntity(wumpus.getPosition(), "Wumpus");
+    }
+
     wumpus.setPosition(newPosition);
     System.out.printf(
-        "Posição final wumpus: (%d, %d)\n",
+        "Posição wumpus: (%d, %d)\n",
         wumpus.getPosition().x,
         wumpus.getPosition().y);
+    grid.addTileEntity(newPosition, "Wumpus");
   }
 }

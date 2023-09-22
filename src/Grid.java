@@ -1,29 +1,38 @@
-
 import java.awt.Point;
+import java.util.ArrayList;
 
 public class Grid {
-  private String[][] gridMap;
+  private Tile[][] tileMap;
   private int size;
 
-  public Grid(int size, Point initalPosition) {
+  public Grid(int size) {
     this.size = size;
-    gridMap = new String[size][size];
+    tileMap = new Tile[size][size];
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < size; j++) {
-        gridMap[i][j] = "?";
+        tileMap[i][j] = new Tile();
       }
     }
-    discoverTile(initalPosition);
   }
 
-  public String getPosition(int x, int y) {
-    return gridMap[x][y];
+  public ArrayList<String> getPositionData(Point position) {
+    return tileMap[position.x][position.y].getEntities();
   }
 
   public void discoverTile(Point position) {
-    if (gridMap[position.x][position.y].contains("?")) {
-      gridMap[position.x][position.y] = "";
-    }
+    tileMap[position.x][position.y].setTileDiscovered(true);
+  }
+
+  public Tile getTileFromPosition(Point position) {
+    return tileMap[position.x][position.y];
+  }
+
+  public void addTileEntity(Point position, String value) {
+    tileMap[position.x][position.y].addEntity(value);
+  }
+
+  public void removeTileEntity(Point position, String value) {
+    tileMap[position.x][position.y].removeEntity(value);
   }
 
   public boolean isValidPosition(Point position) {
