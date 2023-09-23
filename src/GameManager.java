@@ -104,6 +104,7 @@ public class GameManager {
   }
 
   private void finishPlayerTurn() {
+    canMakeTurns = false;
     runEnemyTurn();
     runNextTurn();
   }
@@ -115,19 +116,34 @@ public class GameManager {
     double directionY = (double) playerPosition.y - wumpusPosition.y;
 
     int normalizedX = directionX >= 0
-        ? (int) Math.ceil(directionX / GRID_SIZE - 1)
-        : (int) Math.floor(directionX / GRID_SIZE - 1);
+        ? (int) Math.ceil(directionX / (GRID_SIZE - 1))
+        : (int) Math.floor(directionX / (GRID_SIZE - 1));
 
     int normalizedY = directionY >= 0
-        ? (int) Math.ceil(directionY / GRID_SIZE - 1)
-        : (int) Math.floor(directionY / GRID_SIZE - 1);
+        ? (int) Math.ceil(directionY / (GRID_SIZE - 1))
+        : (int) Math.floor(directionY / (GRID_SIZE - 1));
 
-    if (Math.abs(directionX) > Math.abs(directionY)) {
+    System.out.println(directionX);
+    System.out.println(directionY);
+    System.out.println(normalizedX);
+    System.out.println(normalizedY);
+
+    if (normalizedX == 0) {
       setWumpusPosition(new Point(wumpusPosition.x, wumpusPosition.y + normalizedY));
       return;
     }
 
-    setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
+    if (normalizedY == 0) {
+      setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
+      return;
+    }
+
+    if (Math.abs(directionX) < Math.abs(directionY)) {
+      setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
+      return;
+    }
+
+    setWumpusPosition(new Point(wumpusPosition.x, wumpusPosition.y + normalizedY));
   }
 
   public void makeAction(String input) {
