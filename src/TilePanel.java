@@ -23,13 +23,7 @@ public class TilePanel extends JPanel {
     ArrayList<String> entities = tile.getEntities();
 
     for (String entity : entities) {
-      if (entity == "Player") {
-        add(new JLabel("Player"));
-      }
-
-      if (entity == "Wumpus") {
-        add(new JLabel("Wumpus"));
-      }
+      add(new JLabel(entity));
     }
 
     revalidate();
