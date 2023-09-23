@@ -2,11 +2,16 @@
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
 public class ActionsPanel extends JPanel {
-  public ActionsPanel() {
+  private ActionsHelper actionsHelper;
+
+  public ActionsPanel(ActionsHelper actionsHelper) {
+    this.actionsHelper = actionsHelper;
     init();
   }
 
@@ -35,16 +40,49 @@ public class ActionsPanel extends JPanel {
     directionsGbc.ipadx = 16;
     directionsGbc.ipady = 16;
     directionsGbc.insets = new Insets(4, 4, 4, 4);
-    directions.add(new JButton("Cima"), directionsGbc);
+
+    JButton upButton = new JButton("Cima");
+    upButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("1");
+      }
+    });
+
+    directions.add(upButton, directionsGbc);
     directionsGbc.gridx = 0;
     directionsGbc.gridy = 2;
-    directions.add(new JButton("Esquerda"), directionsGbc);
+
+    JButton leftButton = new JButton("Esquerda");
+    leftButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("4");
+      }
+    });
+    directions.add(leftButton, directionsGbc);
     directionsGbc.gridx = 1;
     directionsGbc.gridy = 2;
-    directions.add(new JButton("Baixo"), directionsGbc);
+
+    JButton downButton = new JButton("Baixo");
+    downButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("3");
+      }
+    });
+    directions.add(downButton, directionsGbc);
     directionsGbc.gridx = 2;
     directionsGbc.gridy = 2;
-    directions.add(new JButton("Direita"), directionsGbc);
+
+    JButton rightButton = new JButton("Direita");
+    rightButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("2");
+      }
+    });
+    directions.add(rightButton, directionsGbc);
 
     return directions;
   }

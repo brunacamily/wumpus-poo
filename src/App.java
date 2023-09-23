@@ -8,11 +8,11 @@ public class App extends JFrame {
   private StatsPanel statsPanel;
   private ActionsPanel actionsPanel;
 
-  public App() {
+  public App(ActionsHelper actionsHelper) {
     gridPanel = new GridPanel();
     logPanel = new LogPanel();
     statsPanel = new StatsPanel();
-    actionsPanel = new ActionsPanel();
+    actionsPanel = new ActionsPanel(actionsHelper);
     init();
   }
 

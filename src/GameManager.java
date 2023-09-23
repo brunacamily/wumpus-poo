@@ -17,6 +17,7 @@ public class GameManager {
   private App uiApp;
 
   private boolean gameOver = false;
+  public boolean canMakeTurns = false;
   private int turnCount;
 
   private Jogador jogador;
@@ -38,8 +39,8 @@ public class GameManager {
     setPlayerPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
     setWumpusPosition(new Point(INITIAL_WUMPUS_POSITION_X, INITIAL_WUMPUS_POSITION_Y));
 
-    turnCount = 1;
-    beginTurns();
+    turnCount = 0;
+    runNextTurn();
   }
 
   public void endGame() {
@@ -61,37 +62,37 @@ public class GameManager {
     }
   }
 
-  private void beginTurns() {
-    while (!gameOver) {
-      uiApp.update(gameOver, jogador, grid);
-      System.out.println();
-      System.out.println("Turno " + turnCount);
-      runPlayerTurn();
-      runEnemyTurn();
-      turnCount++;
-    }
-
-    endGame();
+  private void runNextTurn() {
+    turnCount++;
+    uiApp.update(gameOver, jogador, grid);
+    System.out.println();
+    System.out.println("Turno " + turnCount);
+    runPlayerTurn();
   }
 
   private void runPlayerTurn() {
-    boolean hasInputSucceeded = false;
+    canMakeTurns = true;
 
-    while (!hasInputSucceeded) {
-      System.out.println("Escolha a direção para se mover:");
-      System.out.println("1. Cima:");
-      System.out.println("2. Direita:");
-      System.out.println("3. Baixo:");
-      System.out.println("4. Esquerda:");
+    // while (!hasInputSucceeded) {
+    // System.out.println("Escolha a direção para se mover:");
+    // System.out.println("1. Cima:");
+    // System.out.println("2. Direita:");
+    // System.out.println("3. Baixo:");
+    // System.out.println("4. Esquerda:");
 
-      String input = scanner.nextLine();
+    // String input = scanner.nextLine();
 
-      hasInputSucceeded = makeAction(input);
-      if (!hasInputSucceeded) {
-        System.out.println();
-        System.out.println("Ação mal sucedida. Tente novamente.");
-      }
-    }
+    // hasInputSucceeded = makeAction(input);
+    // if (!hasInputSucceeded) {
+    // System.out.println();
+    // System.out.println("Ação mal sucedida. Tente novamente.");
+    // }
+    // }
+  }
+
+  private void finishPlayerTurn() {
+    runEnemyTurn();
+    runNextTurn();
   }
 
   private void runEnemyTurn() {
@@ -116,25 +117,36 @@ public class GameManager {
     setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
   }
 
-  private boolean makeAction(String input) {
-    if (input.equals(MOVE_UP)) {
-      return setPlayerPosition(
-          new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
-    }
-    if (input.equals(MOVE_RIGHT)) {
-      return setPlayerPosition(
-          new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
-    }
-    if (input.equals(MOVE_DOWN)) {
-      return setPlayerPosition(
-          new Point(jogador.getPosition().x + 1, jogador.getPosition().y - 1));
-    }
-    if (input.equals(MOVE_LEFT)) {
-      return setPlayerPosition(
-          new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
-    }
+  public void makeAction(String input) {
+    boolean hasInputSucceeded = false;
 
-    return false;
+    if (canMakeTurns) {
+      if (input.equals(MOVE_UP)) {
+        hasInputSucceeded = setPlayerPosition(
+            new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
+      }
+      if (input.equals(MOVE_RIGHT)) {
+        hasInputSucceeded = setPlayerPosition(
+            new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
+      }
+      if (input.equals(MOVE_DOWN)) {
+        hasInputSucceeded = setPlayerPosition(
+            new Point(jogador.getPosition().x + 1, jogador.getPosition().y));
+      }
+      if (input.equals(MOVE_LEFT)) {
+        hasInputSucceeded = setPlayerPosition(
+            new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
+      }
+
+      if (!hasInputSucceeded) {
+        System.out.println();
+        System.out.println("Ação mal sucedida. Tente novamente.");
+      }
+
+      if (hasInputSucceeded) {
+        finishPlayerTurn();
+      }
+    }
   }
 
   private boolean setPlayerPosition(Point newPosition) {
@@ -150,7 +162,7 @@ public class GameManager {
 
     jogador.setPosition(newPosition);
     System.out.printf(
-        "Posição atual: (%d, %d)\n",
+        "Posição jogador: (%d, %d)\n",
         jogador.getPosition().x,
         jogador.getPosition().y);
     grid.discoverTile(newPosition);
