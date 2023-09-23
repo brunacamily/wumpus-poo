@@ -85,22 +85,6 @@ public class GameManager {
 
   private void runPlayerTurn() {
     canMakeTurns = true;
-
-    // while (!hasInputSucceeded) {
-    // System.out.println("Escolha a direção para se mover:");
-    // System.out.println("1. Cima:");
-    // System.out.println("2. Direita:");
-    // System.out.println("3. Baixo:");
-    // System.out.println("4. Esquerda:");
-
-    // String input = scanner.nextLine();
-
-    // hasInputSucceeded = makeAction(input);
-    // if (!hasInputSucceeded) {
-    // System.out.println();
-    // System.out.println("Ação mal sucedida. Tente novamente.");
-    // }
-    // }
   }
 
   private void finishPlayerTurn() {
@@ -123,27 +107,38 @@ public class GameManager {
         ? (int) Math.ceil(directionY / (GRID_SIZE - 1))
         : (int) Math.floor(directionY / (GRID_SIZE - 1));
 
-    System.out.println(directionX);
-    System.out.println(directionY);
-    System.out.println(normalizedX);
-    System.out.println(normalizedY);
+    Point newPositionX = new Point(wumpusPosition.x + normalizedX, wumpusPosition.y);
+    Point newPositionY = new Point(wumpusPosition.x, wumpusPosition.y + normalizedY);
+    boolean hasPitOnNewX = grid.hasPitOnPosition(newPositionX);
+    boolean hasPitOnNewY = grid.hasPitOnPosition(newPositionY);
+
+    // TODO: Ajustar IA do wumpus para não travar no poço.
+    if (hasPitOnNewX) {
+      setWumpusPosition(newPositionY);
+      return;
+    }
+
+    if (hasPitOnNewY) {
+      setWumpusPosition(newPositionX);
+      return;
+    }
 
     if (normalizedX == 0) {
-      setWumpusPosition(new Point(wumpusPosition.x, wumpusPosition.y + normalizedY));
+      setWumpusPosition(new Point(newPositionY));
       return;
     }
 
     if (normalizedY == 0) {
-      setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
+      setWumpusPosition(new Point(newPositionX));
       return;
     }
 
     if (Math.abs(directionX) < Math.abs(directionY)) {
-      setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
+      setWumpusPosition(new Point(newPositionX));
       return;
     }
 
-    setWumpusPosition(new Point(wumpusPosition.x, wumpusPosition.y + normalizedY));
+    setWumpusPosition(new Point(newPositionY));
   }
 
   public void makeAction(String input) {
@@ -179,7 +174,7 @@ public class GameManager {
   }
 
   private boolean setPlayerPosition(Point newPosition) {
-    if (!grid.isValidPosition(newPosition)) {
+    if (!grid.isValidPosition(newPosition) || grid.hasPitOnPosition(newPosition)) {
       System.out.println();
       System.out.println("Posição nova inválida.");
       return false;

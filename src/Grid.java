@@ -36,4 +36,9 @@ public class Grid {
         position.x >= 0 &&
         position.y >= 0;
   }
+
+  public boolean hasPitOnPosition(Point position) {
+    Tile tile = getTileFromPosition(position);
+    return tile.getEntities().contains("Pit");
+  }
 }
