@@ -1,4 +1,3 @@
-package ui;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -8,7 +7,10 @@ import java.awt.Insets;
 import javax.swing.*;
 
 public class StatsPanel extends JPanel {
+  JLabel hpLabel;
+
   public StatsPanel() {
+    hpLabel = new JLabel();
     init();
   }
 
@@ -23,7 +25,7 @@ public class StatsPanel extends JPanel {
     labelGbc.fill = GridBagConstraints.HORIZONTAL;
     labelGbc.anchor = GridBagConstraints.FIRST_LINE_START;
 
-    JLabel hpLabel = new JLabel("HP");
+    hpLabel.setText("HP: 2/2");
     hpLabel.setFont(defaultFont);
     add(hpLabel, labelGbc);
     JLabel arrowsLabel = new JLabel("Flechas");
@@ -33,6 +35,10 @@ public class StatsPanel extends JPanel {
     GridBagConstraints blankGbc = new GridBagConstraints();
     blankGbc.weighty = 1.0;
     add(new JLabel(" "), blankGbc);
+  }
+
+  public void update(Jogador jogador) {
+    hpLabel.setText("HP: " + jogador.getHealth() + "/2");
   }
 
   public static GridBagConstraints getConstraints() {
