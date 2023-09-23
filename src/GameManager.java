@@ -173,13 +173,46 @@ public class GameManager {
   private void setWumpusPosition(Point newPosition) {
     if (wumpus.getPosition() != null) {
       grid.removeTileEntity(wumpus.getPosition(), "Wumpus");
+      removeAura(wumpus, "Fedor");
     }
 
     wumpus.setPosition(newPosition);
+    grid.addTileEntity(newPosition, "Wumpus");
+    addAura(wumpus, "Fedor");
+
     System.out.printf(
         "Posição wumpus: (%d, %d)\n",
         wumpus.getPosition().x,
         wumpus.getPosition().y);
-    grid.addTileEntity(newPosition, "Wumpus");
+  }
+
+  private Point[] getNearestPoints(Entity entity) {
+    Point position = entity.getPosition();
+    Point[] nearestPoints = new Point[4];
+
+    nearestPoints[0] = new Point(position.x - 1, position.y);
+    nearestPoints[1] = new Point(position.x, position.y + 1);
+    nearestPoints[2] = new Point(position.x + 1, position.y);
+    nearestPoints[3] = new Point(position.x, position.y - 1);
+
+    return nearestPoints;
+  }
+
+  private void removeAura(Entity entity, String value) {
+    Point[] nearestPoints = getNearestPoints(entity);
+    for (Point point : nearestPoints) {
+      if (grid.isValidPosition(point)) {
+        grid.removeTileEntity(point, value);
+      }
+    }
+  }
+
+  private void addAura(Entity entity, String value) {
+    Point[] nearestPoints = getNearestPoints(entity);
+    for (Point point : nearestPoints) {
+      if (grid.isValidPosition(point)) {
+        grid.addTileEntity(point, value);
+      }
+    }
   }
 }

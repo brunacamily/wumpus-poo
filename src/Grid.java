@@ -1,5 +1,4 @@
 import java.awt.Point;
-import java.util.ArrayList;
 
 public class Grid {
   private Tile[][] tileMap;
@@ -13,10 +12,6 @@ public class Grid {
         tileMap[i][j] = new Tile();
       }
     }
-  }
-
-  public ArrayList<String> getPositionData(Point position) {
-    return tileMap[position.x][position.y].getEntities();
   }
 
   public void discoverTile(Point position) {
