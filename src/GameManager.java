@@ -19,7 +19,9 @@ public class GameManager {
   private static final String LOOT = "5";
   private static final String FIRE = "6";
   private static final String FLASHLIGHT = "7";
-  private static final String DEBUG = "8";
+  private static final String CRAFT_ARROW = "8";
+  private static final String FILL_PIT = "9";
+  private static final String DEBUG = "10";
 
   private App uiApp;
 
@@ -204,7 +206,7 @@ public class GameManager {
     }
 
     if (tile.getEntities().contains("Madeira")) {
-      jogador.addArrow();
+      jogador.addWood();
       grid.removeTileEntity(jogador.getPosition(), "Madeira");
       return true;
     }
@@ -251,11 +253,11 @@ public class GameManager {
     canMakeTurns = true;
     jogador.useBattery();
 
-    Point position = getSelectedDirection(
+    Point direction = getSelectedDirection(
         "Selecione a direção para iluminar:\n");
 
-    if (position.x != 0) {
-      if (position.x == 1) {
+    if (direction.x != 0) {
+      if (direction.x == 1) {
         for (int i = jogador.getPosition().x; i < GRID_SIZE; i++) {
           grid.discoverTile(new Point(i, jogador.getPosition().y));
         }
@@ -263,7 +265,7 @@ public class GameManager {
         return true;
       }
 
-      if (position.x == -1) {
+      if (direction.x == -1) {
         for (int i = jogador.getPosition().x; i >= 0; i--) {
           grid.discoverTile(new Point(i, jogador.getPosition().y));
         }
@@ -272,8 +274,8 @@ public class GameManager {
       }
     }
 
-    if (position.y != 0) {
-      if (position.y == 1) {
+    if (direction.y != 0) {
+      if (direction.y == 1) {
         for (int i = jogador.getPosition().y; i < GRID_SIZE; i++) {
           grid.discoverTile(new Point(jogador.getPosition().x, i));
         }
@@ -281,11 +283,46 @@ public class GameManager {
         return true;
       }
 
-      if (position.y == -1) {
+      if (direction.y == -1) {
         for (int i = jogador.getPosition().y; i >= 0; i--) {
           grid.discoverTile(new Point(jogador.getPosition().x, i));
         }
 
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private boolean craftArrow() {
+    if (jogador.getWoods() == 0) {
+      System.out.println("Não há madeira suficiente");
+      return false;
+    }
+
+    jogador.craftArrow();
+    return true;
+  }
+
+  private boolean fillPit() {
+    if (jogador.getWoods() == 0) {
+      System.out.println("Não há madeira suficiente");
+      return false;
+    }
+
+    Point direction = getSelectedDirection(
+        "Selecione a direção para iluminar:\n");
+
+    Point position = new Point(
+        jogador.getPosition().x + direction.x,
+        jogador.getPosition().y + direction.y);
+
+    for (Pit pit : pits) {
+      if (pit.getPosition().equals(position)) {
+        jogador.removeWood();
+        grid.removeTileEntity(position, pit.getId());
+        grid.removeAura(position, pit.getAuraId());
         return true;
       }
     }
@@ -411,10 +448,14 @@ public class GameManager {
         return lootItem();
       case FIRE:
         return fireArrow();
-      case DEBUG:
-        return toggleDebug();
       case FLASHLIGHT:
         return useFlashlight();
+      case CRAFT_ARROW:
+        return craftArrow();
+      case FILL_PIT:
+        return fillPit();
+      case DEBUG:
+        return toggleDebug();
       default:
         return false;
     }

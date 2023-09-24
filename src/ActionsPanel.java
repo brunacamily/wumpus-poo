@@ -92,7 +92,7 @@ public class ActionsPanel extends JPanel {
 
     GridBagConstraints actionsGbc = new GridBagConstraints();
     actionsGbc.anchor = GridBagConstraints.NORTH;
-    actionsGbc.gridx = 1;
+    actionsGbc.gridx = 2;
     actionsGbc.gridy = 0;
     actionsGbc.insets = new Insets(0, 0, 16, 0);
     actions.add(new JLabel("Ações"), actionsGbc);
@@ -127,7 +127,26 @@ public class ActionsPanel extends JPanel {
         actionsHelper.makeAction("7");
       }
     });
+
     actions.add(flashlightButton, actionsGbc);
+    JButton makeArrow = new JButton("Fazer Flecha");
+    makeArrow.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("8");
+      }
+    });
+
+    actions.add(makeArrow, actionsGbc);
+
+    JButton fillPitButton = new JButton("Tampar Poço");
+    fillPitButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("9");
+      }
+    });
+    actions.add(fillPitButton, actionsGbc);
 
     return actions;
   }

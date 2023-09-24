@@ -23,7 +23,7 @@ public class DebugPanel extends JPanel {
     debugButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        actionsHelper.makeAction("8");
+        actionsHelper.makeAction("10");
       }
     });
     add(debugButton, gbc);
