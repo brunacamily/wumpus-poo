@@ -14,10 +14,10 @@ public class TilePanel extends JPanel {
     setPreferredSize(new Dimension(32, 32));
   }
 
-  public void update(Tile tile) {
+  public void update(Tile tile, boolean isDebugModeOn) {
     removeAll();
 
-    if (!tile.isTileDiscovered()) {
+    if (!tile.isTileDiscovered() && !isDebugModeOn) {
       add(new JLabel("?"));
       return;
     }
@@ -27,8 +27,5 @@ public class TilePanel extends JPanel {
     for (String entity : entities) {
       add(new JLabel(entity));
     }
-
-    revalidate();
-    repaint();
   }
 }

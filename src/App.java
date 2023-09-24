@@ -4,13 +4,13 @@ import javax.swing.*;
 
 public class App extends JFrame {
   private GridPanel gridPanel;
-  private LogPanel logPanel;
+  private DebugPanel debugPanel;
   private StatsPanel statsPanel;
   private ActionsPanel actionsPanel;
 
   public App(ActionsHelper actionsHelper) {
     gridPanel = new GridPanel();
-    logPanel = new LogPanel();
+    debugPanel = new DebugPanel(actionsHelper);
     statsPanel = new StatsPanel();
     actionsPanel = new ActionsPanel(actionsHelper);
     init();
@@ -26,16 +26,19 @@ public class App extends JFrame {
     setLayout(new GridBagLayout());
 
     add(gridPanel, GridPanel.getConstraints());
-    add(logPanel, LogPanel.getConstraints());
+    add(debugPanel, DebugPanel.getConstraints());
     add(statsPanel, StatsPanel.getConstraints());
     add(actionsPanel, ActionsPanel.getConstraints());
 
     setVisible(true);
   }
 
-  public void update(Jogador jogador, Grid grid) {
-    gridPanel.update(grid);
-    statsPanel.update(jogador);
+  public void update(Jogador jogador, Grid grid, boolean isDebugModeOn) {
+    gridPanel.update(grid, isDebugModeOn);
+    statsPanel.update(jogador, isDebugModeOn);
+
+    revalidate();
+    repaint();
   }
 
   public String selectArrowDirection() {
@@ -53,9 +56,5 @@ public class App extends JFrame {
     }
 
     return "";
-  }
-
-  public void clearGrid() {
-    gridPanel.clear();
   }
 }

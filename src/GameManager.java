@@ -18,10 +18,12 @@ public class GameManager {
   private static final String MOVE_LEFT = "4";
   private static final String LOOT = "5";
   private static final String FIRE = "6";
+  private static final String DEBUG = "8";
 
   private App uiApp;
 
   public boolean canMakeTurns = false;
+  private boolean isDebugModeOn = false;
 
   private Jogador jogador;
   private Wumpus wumpus;
@@ -69,13 +71,12 @@ public class GameManager {
   }
 
   public void endGame(String result) {
-    uiApp.update(jogador, grid);
+    uiApp.update(jogador, grid, isDebugModeOn);
 
     String input = uiApp.endGame(result);
 
     switch (input) {
       case "1":
-        uiApp.clearGrid();
         startGame();
         break;
       case "2":
@@ -88,7 +89,7 @@ public class GameManager {
   }
 
   private void runNextTurn() {
-    uiApp.update(jogador, grid);
+    uiApp.update(jogador, grid, isDebugModeOn);
     runPlayerTurn();
   }
 
@@ -264,6 +265,12 @@ public class GameManager {
     return true;
   }
 
+  private boolean toggleDebug() {
+    isDebugModeOn = !isDebugModeOn;
+    uiApp.update(jogador, grid, isDebugModeOn);
+    return false;
+  }
+
   private Point findPlacementPoint() {
     Random random = new Random();
 
@@ -346,6 +353,8 @@ public class GameManager {
         return lootItem();
       case FIRE:
         return fireArrow();
+      case DEBUG:
+        return toggleDebug();
       default:
         return false;
     }
