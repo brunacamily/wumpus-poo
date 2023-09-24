@@ -19,7 +19,9 @@ public class GameManager {
   private static final String LOOT = "5";
   private static final String FIRE = "6";
   private static final String FLASHLIGHT = "7";
-  private static final String DEBUG = "8";
+  private static final String CRAFT_ARROW = "8";
+  private static final String FILL_PIT = "9";
+  private static final String DEBUG = "10";
 
   private App uiApp;
 
@@ -204,7 +206,7 @@ public class GameManager {
     }
 
     if (tile.getEntities().contains("Madeira")) {
-      jogador.addArrow();
+      jogador.addWood();
       grid.removeTileEntity(jogador.getPosition(), "Madeira");
       return true;
     }
@@ -290,6 +292,20 @@ public class GameManager {
       }
     }
 
+    return false;
+  }
+
+  private boolean craftArrow() {
+    if (jogador.getWoods() == 0) {
+      System.out.println("Não há madeira suficiente");
+      return false;
+    }
+
+    jogador.craftArrow();
+    return true;
+  }
+
+  private boolean fillPit() {
     return false;
   }
 
@@ -411,10 +427,14 @@ public class GameManager {
         return lootItem();
       case FIRE:
         return fireArrow();
-      case DEBUG:
-        return toggleDebug();
       case FLASHLIGHT:
         return useFlashlight();
+      case CRAFT_ARROW:
+        return craftArrow();
+      case FILL_PIT:
+        return fillPit();
+      case DEBUG:
+        return toggleDebug();
       default:
         return false;
     }

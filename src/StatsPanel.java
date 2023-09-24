@@ -8,12 +8,14 @@ import javax.swing.*;
 
 public class StatsPanel extends JPanel {
   JLabel hpLabel;
+  JLabel woodLabel;
   JLabel arrowsLabel;
   JLabel goldLabel;
   JLabel debugLabel;
 
   public StatsPanel() {
     hpLabel = new JLabel();
+    woodLabel = new JLabel();
     arrowsLabel = new JLabel();
     goldLabel = new JLabel();
     debugLabel = new JLabel();
@@ -31,9 +33,12 @@ public class StatsPanel extends JPanel {
     labelGbc.fill = GridBagConstraints.HORIZONTAL;
     labelGbc.anchor = GridBagConstraints.FIRST_LINE_START;
 
-    hpLabel.setText("HP: 2/2");
+    hpLabel.setText("HP: 10/10");
     hpLabel.setFont(defaultFont);
     add(hpLabel, labelGbc);
+    woodLabel.setText("Madeira: 0");
+    woodLabel.setFont(defaultFont);
+    add(woodLabel, labelGbc);
     arrowsLabel.setText("Flechas: 0");
     arrowsLabel.setFont(defaultFont);
     add(arrowsLabel, labelGbc);
@@ -52,7 +57,8 @@ public class StatsPanel extends JPanel {
   }
 
   public void update(Jogador jogador, boolean isDebugModeOn) {
-    hpLabel.setText("HP: " + jogador.getHealth() + "/2");
+    hpLabel.setText("HP: " + jogador.getHealth() + "/10");
+    woodLabel.setText("Madeira: " + jogador.getWoods());
     arrowsLabel.setText("Flechas: " + jogador.getArrows());
     debugLabel.setVisible(isDebugModeOn);
 

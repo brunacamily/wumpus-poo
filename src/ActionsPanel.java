@@ -127,7 +127,26 @@ public class ActionsPanel extends JPanel {
         actionsHelper.makeAction("7");
       }
     });
+
     actions.add(flashlightButton, actionsGbc);
+    JButton makeArrow = new JButton("Fazer Flecha");
+    makeArrow.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("8");
+      }
+    });
+
+    actions.add(makeArrow, actionsGbc);
+
+    JButton fillPitButton = new JButton("Tampar Poço");
+    fillPitButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("9");
+      }
+    });
+    actions.add(fillPitButton, actionsGbc);
 
     return actions;
   }
