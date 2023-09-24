@@ -5,6 +5,7 @@ import java.awt.Point;
 public class GameManager {
   private static final int GRID_SIZE = 15;
   private static final int PITS_COUNT = 5;
+  private static final int WOOD_COUNT = 2;
   private static final int INITIAL_POSITION_X = GRID_SIZE - 1;
   private static final int INITIAL_POSITION_Y = 0;
 
@@ -45,6 +46,11 @@ public class GameManager {
       pits[i].setPosition(position);
       grid.addTileEntity(position, pits[i].getId());
       grid.addAura(pits[i].getPosition(), pits[i].getAuraId());
+    }
+
+    for (int i = 0; i < WOOD_COUNT; i++) {
+      Point position = findPlacementPoint();
+      grid.addTileEntity(position, "Madeira");
     }
 
     setPlayerPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
@@ -170,7 +176,7 @@ public class GameManager {
     }
 
     if (tile.getEntities().contains("Madeira")) {
-      jogador.addWood();
+      jogador.addArrow();
       grid.removeTileEntity(jogador.getPosition(), "Madeira");
       return true;
     }

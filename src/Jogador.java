@@ -4,7 +4,6 @@ public class Jogador extends Agente {
   private int battery;
   private int arrows;
   private boolean hasGold;
-  private int woods;
   private boolean hasCarryingWood;
 
   public Jogador() {
@@ -12,13 +11,8 @@ public class Jogador extends Agente {
     battery = 2;
     arrows = 0;
     hasGold = false;
-    woods = 0;
     hasCarryingWood = false;
     this.setId("Jogador");
-  }
-
-  public void addWood() {
-    woods++;
   }
 
   public void addArrow() {
@@ -55,10 +49,6 @@ public class Jogador extends Agente {
 
   public boolean hasGold() {
     return hasGold;
-  }
-
-  public int getWoods() {
-    return woods;
   }
 
   public boolean isCarryingWood() {
