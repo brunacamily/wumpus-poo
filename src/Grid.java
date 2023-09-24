@@ -14,7 +14,7 @@ public class Grid {
     }
   }
 
-  private void discoverTile(Point position) {
+  public void discoverTile(Point position) {
     if (isValidPosition(position)) {
       tileMap[position.x][position.y].setTileDiscovered(true);
     }

@@ -41,9 +41,14 @@ public class App extends JFrame {
     repaint();
   }
 
-  public String selectArrowDirection() {
+  public String selectDirection(String promptText) {
     return JOptionPane
-        .showInputDialog("Selecione a direção de disparo da flecha:\n1-Cima\n2-Direita\n3-Baixo\n4-Esquerda");
+        .showInputDialog(
+            promptText +
+                "1-Cima\n" +
+                "2-Direita\n" +
+                "3-Baixo\n" +
+                "4-Esquerda");
   }
 
   public String endGame(String result) {

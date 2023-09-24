@@ -35,6 +35,10 @@ public class Jogador extends Agente {
     health = Math.max(0, health - damage);
   }
 
+  public void useBattery() {
+    battery--;
+  }
+
   public int getBattery() {
     return battery;
   }

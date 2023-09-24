@@ -120,7 +120,14 @@ public class ActionsPanel extends JPanel {
     });
     actions.add(fireButton, actionsGbc);
 
-    actions.add(new JButton("Lanterna"), actionsGbc);
+    JButton flashlightButton = new JButton("Lanterna");
+    flashlightButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("7");
+      }
+    });
+    actions.add(flashlightButton, actionsGbc);
 
     return actions;
   }
