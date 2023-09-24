@@ -5,20 +5,22 @@ public class Jogador extends Agente {
   private int arrows;
   private int woods;
   private boolean hasGold;
-  private boolean hasCarryingWood;
 
   public Jogador() {
     health = 10;
     battery = 2;
     arrows = 0;
     hasGold = false;
-    hasCarryingWood = false;
     this.setId("Jogador");
   }
 
   public void craftArrow() {
     woods--;
     arrows++;
+  }
+
+  public void removeWood() {
+    woods--;
   }
 
   public void addWood() {
@@ -59,9 +61,5 @@ public class Jogador extends Agente {
 
   public boolean hasGold() {
     return hasGold;
-  }
-
-  public boolean isCarryingWood() {
-    return hasCarryingWood;
   }
 }

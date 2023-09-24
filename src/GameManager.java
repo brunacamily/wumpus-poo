@@ -253,11 +253,11 @@ public class GameManager {
     canMakeTurns = true;
     jogador.useBattery();
 
-    Point position = getSelectedDirection(
+    Point direction = getSelectedDirection(
         "Selecione a direção para iluminar:\n");
 
-    if (position.x != 0) {
-      if (position.x == 1) {
+    if (direction.x != 0) {
+      if (direction.x == 1) {
         for (int i = jogador.getPosition().x; i < GRID_SIZE; i++) {
           grid.discoverTile(new Point(i, jogador.getPosition().y));
         }
@@ -265,7 +265,7 @@ public class GameManager {
         return true;
       }
 
-      if (position.x == -1) {
+      if (direction.x == -1) {
         for (int i = jogador.getPosition().x; i >= 0; i--) {
           grid.discoverTile(new Point(i, jogador.getPosition().y));
         }
@@ -274,8 +274,8 @@ public class GameManager {
       }
     }
 
-    if (position.y != 0) {
-      if (position.y == 1) {
+    if (direction.y != 0) {
+      if (direction.y == 1) {
         for (int i = jogador.getPosition().y; i < GRID_SIZE; i++) {
           grid.discoverTile(new Point(jogador.getPosition().x, i));
         }
@@ -283,7 +283,7 @@ public class GameManager {
         return true;
       }
 
-      if (position.y == -1) {
+      if (direction.y == -1) {
         for (int i = jogador.getPosition().y; i >= 0; i--) {
           grid.discoverTile(new Point(jogador.getPosition().x, i));
         }
@@ -306,6 +306,27 @@ public class GameManager {
   }
 
   private boolean fillPit() {
+    if (jogador.getWoods() == 0) {
+      System.out.println("Não há madeira suficiente");
+      return false;
+    }
+
+    Point direction = getSelectedDirection(
+        "Selecione a direção para iluminar:\n");
+
+    Point position = new Point(
+        jogador.getPosition().x + direction.x,
+        jogador.getPosition().y + direction.y);
+
+    for (Pit pit : pits) {
+      if (pit.getPosition().equals(position)) {
+        jogador.removeWood();
+        grid.removeTileEntity(position, pit.getId());
+        grid.removeAura(position, pit.getAuraId());
+        return true;
+      }
+    }
+
     return false;
   }
 
