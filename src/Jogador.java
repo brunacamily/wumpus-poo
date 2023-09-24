@@ -14,6 +14,7 @@ public class Jogador extends Agente {
     hasGold = false;
     woods = 0;
     hasCarryingWood = false;
+    this.setId("Jogador");
   }
 
   public void addWood() {
@@ -38,6 +39,10 @@ public class Jogador extends Agente {
 
   public int getHealth() {
     return health;
+  }
+
+  public void takeDamage(int damage) {
+    health = Math.max(0, health - damage);
   }
 
   public int getBattery() {
