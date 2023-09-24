@@ -54,4 +54,8 @@ public class App extends JFrame {
 
     return "";
   }
+
+  public void clearGrid() {
+    gridPanel.clear();
+  }
 }

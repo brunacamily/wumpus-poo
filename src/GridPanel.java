@@ -34,6 +34,13 @@ public class GridPanel extends JPanel {
     }
   }
 
+  public void clear() {
+    removeAll();
+    init();
+    revalidate();
+    repaint();
+  }
+
   public static GridBagConstraints getConstraints() {
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.gridx = 0;

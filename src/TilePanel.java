@@ -16,10 +16,12 @@ public class TilePanel extends JPanel {
 
   public void update(Tile tile) {
     removeAll();
-    // if (!tile.isTileDiscovered()) {
-    // add(new JLabel("Desconhecido"));
-    // return;
-    // }
+
+    if (!tile.isTileDiscovered()) {
+      add(new JLabel("?"));
+      return;
+    }
+
     ArrayList<String> entities = tile.getEntities();
 
     for (String entity : entities) {

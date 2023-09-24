@@ -75,6 +75,7 @@ public class GameManager {
 
     switch (input) {
       case "1":
+        uiApp.clearGrid();
         startGame();
         break;
       case "2":
@@ -172,7 +173,7 @@ public class GameManager {
     }
 
     jogador.setPosition(newPosition);
-    grid.discoverTile(newPosition);
+    grid.removeFog(newPosition);
     grid.addTileEntity(newPosition, jogador.getId());
 
     return true;
