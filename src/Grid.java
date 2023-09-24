@@ -43,6 +43,35 @@ public class Grid {
     }
 
     Tile tile = getTileFromPosition(position);
-    return tile.getEntities().contains("Pit");
+    return tile.getEntities().contains("Poço");
+  }
+
+  private Point[] getNearestPoints(Point position) {
+    Point[] nearestPoints = new Point[4];
+
+    nearestPoints[0] = new Point(position.x - 1, position.y);
+    nearestPoints[1] = new Point(position.x, position.y + 1);
+    nearestPoints[2] = new Point(position.x + 1, position.y);
+    nearestPoints[3] = new Point(position.x, position.y - 1);
+
+    return nearestPoints;
+  }
+
+  public void removeAura(Point position, String value) {
+    Point[] nearestPoints = getNearestPoints(position);
+    for (Point point : nearestPoints) {
+      if (isValidPosition(point)) {
+        removeTileEntity(point, value);
+      }
+    }
+  }
+
+  public void addAura(Point position, String value) {
+    Point[] nearestPoints = getNearestPoints(position);
+    for (Point point : nearestPoints) {
+      if (isValidPosition(point)) {
+        addTileEntity(point, value);
+      }
+    }
   }
 }

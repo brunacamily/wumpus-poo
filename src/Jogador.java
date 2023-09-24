@@ -48,7 +48,7 @@ public class Jogador extends Agente {
     return arrows;
   }
 
-  public boolean isHasGold() {
+  public boolean hasGold() {
     return hasGold;
   }
 
@@ -56,7 +56,7 @@ public class Jogador extends Agente {
     return woods;
   }
 
-  public boolean isHasCarryingWood() {
+  public boolean isCarryingWood() {
     return hasCarryingWood;
   }
 }
