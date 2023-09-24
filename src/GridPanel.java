@@ -25,11 +25,11 @@ public class GridPanel extends JPanel {
     setLayout(new GridLayout(gridSize, gridSize));
   }
 
-  public void update(Grid grid) {
+  public void update(Grid grid, boolean isDebugModeOn) {
     for (int i = 0; i < gridSize; i++) {
       for (int j = 0; j < gridSize; j++) {
         Point position = new Point(i, j);
-        tilePanel[i][j].update(grid.getTileFromPosition(position));
+        tilePanel[i][j].update(grid.getTileFromPosition(position), isDebugModeOn);
       }
     }
   }

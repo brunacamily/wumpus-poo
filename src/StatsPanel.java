@@ -10,11 +10,13 @@ public class StatsPanel extends JPanel {
   JLabel hpLabel;
   JLabel arrowsLabel;
   JLabel goldLabel;
+  JLabel debugLabel;
 
   public StatsPanel() {
     hpLabel = new JLabel();
     arrowsLabel = new JLabel();
     goldLabel = new JLabel();
+    debugLabel = new JLabel();
     init();
   }
 
@@ -39,15 +41,20 @@ public class StatsPanel extends JPanel {
     goldLabel.setFont(defaultFont);
     goldLabel.setVisible(false);
     add(goldLabel, labelGbc);
+    debugLabel.setText("MODO DEBUG ATIVO");
+    debugLabel.setFont(defaultFont);
+    debugLabel.setVisible(false);
+    add(debugLabel, labelGbc);
 
     GridBagConstraints blankGbc = new GridBagConstraints();
     blankGbc.weighty = 1.0;
     add(new JLabel(" "), blankGbc);
   }
 
-  public void update(Jogador jogador) {
+  public void update(Jogador jogador, boolean isDebugModeOn) {
     hpLabel.setText("HP: " + jogador.getHealth() + "/2");
     arrowsLabel.setText("Flechas: " + jogador.getArrows());
+    debugLabel.setVisible(isDebugModeOn);
 
     if (jogador.hasGold()) {
       goldLabel.setVisible(true);

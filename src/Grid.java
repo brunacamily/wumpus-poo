@@ -14,8 +14,10 @@ public class Grid {
     }
   }
 
-  public void discoverTile(Point position) {
-    tileMap[position.x][position.y].setTileDiscovered(true);
+  private void discoverTile(Point position) {
+    if (isValidPosition(position)) {
+      tileMap[position.x][position.y].setTileDiscovered(true);
+    }
   }
 
   public Tile getTileFromPosition(Point position) {
@@ -72,6 +74,14 @@ public class Grid {
       if (isValidPosition(point)) {
         addTileEntity(point, value);
       }
+    }
+  }
+
+  public void removeFog(Point position) {
+    discoverTile(position);
+    Point[] nearestPoints = getNearestPoints(position);
+    for (Point point : nearestPoints) {
+      discoverTile(point);
     }
   }
 }
