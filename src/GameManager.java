@@ -18,6 +18,7 @@ public class GameManager {
   private static final String MOVE_LEFT = "4";
   private static final String LOOT = "5";
   private static final String FIRE = "6";
+  private static final String FLASHLIGHT = "7";
   private static final String DEBUG = "8";
 
   private App uiApp;
@@ -217,38 +218,14 @@ public class GameManager {
       return false;
     }
 
-    String input = uiApp.selectArrowDirection();
-    int numberInput = 0;
-
-    try {
-      numberInput = Integer.parseInt(input);
-    } catch (NumberFormatException error) {
-      System.out.println("Caractere inválido.");
-      return false;
-    }
-
-    if (numberInput < 1 || numberInput > 4) {
-      System.out.println("Seleção inválida.");
-      return false;
-    }
-
     jogador.fireArrow();
-    Point position = new Point(jogador.getPosition());
 
-    switch (numberInput) {
-      case 1:
-        position.translate(-1, 0);
-        break;
-      case 2:
-        position.translate(0, 1);
-        break;
-      case 3:
-        position.translate(1, 0);
-        break;
-      case 4:
-        position.translate(0, -1);
-        break;
-    }
+    Point direction = getSelectedDirection(
+        "Selecione a direção de disparo da flecha:\n");
+
+    Point position = new Point(
+        jogador.getPosition().x + direction.x,
+        jogador.getPosition().y + direction.y);
 
     if (position.equals(wumpus.getPosition())) {
       wumpus.die();
@@ -265,10 +242,91 @@ public class GameManager {
     return true;
   }
 
+  private boolean useFlashlight() {
+    if (jogador.getBattery() == 0) {
+      System.out.println("Não há bateria para utilizar");
+      return false;
+    }
+
+    canMakeTurns = true;
+    jogador.useBattery();
+
+    Point position = getSelectedDirection(
+        "Selecione a direção para iluminar:\n");
+
+    if (position.x != 0) {
+      if (position.x == 1) {
+        for (int i = jogador.getPosition().x; i < GRID_SIZE; i++) {
+          grid.discoverTile(new Point(i, jogador.getPosition().y));
+        }
+
+        return true;
+      }
+
+      if (position.x == -1) {
+        for (int i = jogador.getPosition().x; i >= 0; i--) {
+          grid.discoverTile(new Point(i, jogador.getPosition().y));
+        }
+
+        return true;
+      }
+    }
+
+    if (position.y != 0) {
+      if (position.y == 1) {
+        for (int i = jogador.getPosition().y; i < GRID_SIZE; i++) {
+          grid.discoverTile(new Point(jogador.getPosition().x, i));
+        }
+
+        return true;
+      }
+
+      if (position.y == -1) {
+        for (int i = jogador.getPosition().y; i >= 0; i--) {
+          grid.discoverTile(new Point(jogador.getPosition().x, i));
+        }
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private boolean toggleDebug() {
     isDebugModeOn = !isDebugModeOn;
     uiApp.update(jogador, grid, isDebugModeOn);
     return false;
+  }
+
+  private Point getSelectedDirection(String prompText) {
+    String input = uiApp.selectDirection(prompText);
+    int numberInput = 0;
+
+    try {
+      numberInput = Integer.parseInt(input);
+    } catch (NumberFormatException error) {
+      System.out.println("Caractere inválido.");
+      return null;
+    }
+
+    if (numberInput < 1 || numberInput > 4) {
+      System.out.println("Seleção inválida.");
+      return null;
+    }
+
+    switch (numberInput) {
+      case 1:
+        return new Point(-1, 0);
+      case 2:
+        return new Point(0, 1);
+      case 3:
+        return new Point(1, 0);
+      case 4:
+        return new Point(0, -1);
+      default:
+        return new Point(0, 0);
+    }
   }
 
   private Point findPlacementPoint() {
@@ -355,6 +413,8 @@ public class GameManager {
         return fireArrow();
       case DEBUG:
         return toggleDebug();
+      case FLASHLIGHT:
+        return useFlashlight();
       default:
         return false;
     }
