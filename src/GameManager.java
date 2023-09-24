@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Random;
 import java.awt.Point;
 
@@ -8,10 +7,14 @@ public class GameManager {
   private static final int INITIAL_POSITION_X = GRID_SIZE - 1;
   private static final int INITIAL_POSITION_Y = 0;
 
+  private static final String VICTORY = "Victory";
+  private static final String DEFEAT = "Defeat";
+
   private static final String MOVE_UP = "1";
   private static final String MOVE_RIGHT = "2";
   private static final String MOVE_DOWN = "3";
   private static final String MOVE_LEFT = "4";
+  private static final String LOOT = "5";
 
   private App uiApp;
 
@@ -38,8 +41,8 @@ public class GameManager {
       pits[i] = new Pit();
       Point position = findPlacementPoint();
       pits[i].setPosition(position);
-      grid.addTileEntity(position, "Pit");
-      addAura(pits[i], "Brisa");
+      grid.addTileEntity(position, "Poço");
+      grid.addAura(pits[i].getPosition(), "Brisa");
     }
 
     setPlayerPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
@@ -47,10 +50,22 @@ public class GameManager {
     Point wumpusPosition = findPlacementPoint();
     setWumpusPosition(wumpusPosition);
 
+    Point goldPosition = findPlacementPoint();
+    grid.addTileEntity(goldPosition, "Ouro");
+
     runNextTurn();
   }
 
-  public void endGame() {
+  public void endGame(String result) {
+    uiApp.update(gameOver, jogador, grid);
+
+    if (result == VICTORY) {
+      System.out.println("Você venceu");
+    }
+
+    if (result == DEFEAT) {
+      System.out.println("Você perdeu");
+    }
   }
 
   private void runNextTurn() {
@@ -84,6 +99,13 @@ public class GameManager {
       }
 
       if (hasInputSucceeded) {
+        Point initialPosition = new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y);
+
+        if (jogador.getPosition().equals(initialPosition) && jogador.hasGold()) {
+          endGame(VICTORY);
+          return;
+        }
+
         finishPlayerTurn();
       }
     }
@@ -106,45 +128,35 @@ public class GameManager {
     return true;
   }
 
+  private boolean lootItem() {
+    Tile tile = grid.getTileFromPosition(jogador.getPosition());
+
+    if (tile.getEntities().contains("Ouro")) {
+      jogador.addGold();
+      grid.removeTileEntity(jogador.getPosition(), "Ouro");
+      return true;
+    }
+
+    if (tile.getEntities().contains("Madeira")) {
+      jogador.addWood();
+      grid.removeTileEntity(jogador.getPosition(), "Madeira");
+      return true;
+    }
+
+    return false;
+  }
+
   private void setWumpusPosition(Point newPosition) {
-    if (wumpus.getPosition() != null) {
-      grid.removeTileEntity(wumpus.getPosition(), "Wumpus");
-      removeAura(wumpus, "Fedor");
+    Point wumpusOldPosition = wumpus.getPosition();
+
+    if (wumpusOldPosition != null) {
+      grid.removeTileEntity(wumpusOldPosition, "Wumpus");
+      grid.removeAura(wumpusOldPosition, "Fedor");
     }
 
     wumpus.setPosition(newPosition);
     grid.addTileEntity(newPosition, "Wumpus");
-    addAura(wumpus, "Fedor");
-  }
-
-  private Point[] getNearestPoints(Entity entity) {
-    Point position = entity.getPosition();
-    Point[] nearestPoints = new Point[4];
-
-    nearestPoints[0] = new Point(position.x - 1, position.y);
-    nearestPoints[1] = new Point(position.x, position.y + 1);
-    nearestPoints[2] = new Point(position.x + 1, position.y);
-    nearestPoints[3] = new Point(position.x, position.y - 1);
-
-    return nearestPoints;
-  }
-
-  private void removeAura(Entity entity, String value) {
-    Point[] nearestPoints = getNearestPoints(entity);
-    for (Point point : nearestPoints) {
-      if (grid.isValidPosition(point)) {
-        grid.removeTileEntity(point, value);
-      }
-    }
-  }
-
-  private void addAura(Entity entity, String value) {
-    Point[] nearestPoints = getNearestPoints(entity);
-    for (Point point : nearestPoints) {
-      if (grid.isValidPosition(point)) {
-        grid.addTileEntity(point, value);
-      }
-    }
+    grid.addAura(newPosition, "Fedor");
   }
 
   private Point findPlacementPoint() {
@@ -158,11 +170,8 @@ public class GameManager {
       x = random.nextInt(GRID_SIZE - 1);
       y = random.nextInt(GRID_SIZE - 1);
       position.setLocation(x, y);
-      ArrayList<String> entities = grid.getTileFromPosition(position).getEntities();
 
-      if (!entities.contains("Pit")) {
-        hasPit = false;
-      }
+      hasPit = grid.hasPitOnPosition(position);
     }
 
     return position;
@@ -214,6 +223,8 @@ public class GameManager {
       case MOVE_LEFT:
         return setPlayerPosition(
             new Point(playerPosition.x, playerPosition.y - 1));
+      case LOOT:
+        return lootItem();
       default:
         return false;
     }
