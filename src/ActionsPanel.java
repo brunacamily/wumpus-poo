@@ -101,7 +101,7 @@ public class ActionsPanel extends JPanel {
     actionsGbc.ipadx = 16;
     actionsGbc.ipady = 16;
     actionsGbc.insets = new Insets(4, 4, 4, 4);
-    actions.add(new JButton("Atirar"), actionsGbc);
+
     JButton collectButton = new JButton("Coletar");
     collectButton.addActionListener(new ActionListener() {
       @Override
@@ -110,6 +110,16 @@ public class ActionsPanel extends JPanel {
       }
     });
     actions.add(collectButton, actionsGbc);
+
+    JButton fireButton = new JButton("Atirar");
+    fireButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        actionsHelper.makeAction("6");
+      }
+    });
+    actions.add(fireButton, actionsGbc);
+
     actions.add(new JButton("Lanterna"), actionsGbc);
 
     return actions;

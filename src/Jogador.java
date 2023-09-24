@@ -23,12 +23,8 @@ public class Jogador extends Agente {
     hasGold = true;
   }
 
-  public void arrowAttack(Wumpus wumpus) {
+  public void fireArrow() {
     arrows--;
-    // TODO: Checar se wumpus está na posição de disparo
-    if (true) {
-      wumpus.killWumpus();
-    }
   }
 
   public int getHealth() {

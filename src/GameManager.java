@@ -17,6 +17,7 @@ public class GameManager {
   private static final String MOVE_DOWN = "3";
   private static final String MOVE_LEFT = "4";
   private static final String LOOT = "5";
+  private static final String FIRE = "6";
 
   private App uiApp;
 
@@ -95,8 +96,14 @@ public class GameManager {
   }
 
   private void finishPlayerTurn() {
-    runEnemyTurn(wumpus);
-    runEnemyTurn(lumpus);
+    if (!wumpus.isDead()) {
+      runEnemyTurn(wumpus);
+    }
+
+    if (!lumpus.isDead()) {
+      runEnemyTurn(lumpus);
+    }
+
     runNextTurn();
   }
 
@@ -184,6 +191,60 @@ public class GameManager {
     return false;
   }
 
+  private boolean fireArrow() {
+    if (jogador.getArrows() == 0) {
+      System.out.println("Não há flechas para disparar");
+      return false;
+    }
+
+    String input = uiApp.selectArrowDirection();
+    int numberInput = 0;
+
+    try {
+      numberInput = Integer.parseInt(input);
+    } catch (NumberFormatException error) {
+      System.out.println("Caractere inválido.");
+      return false;
+    }
+
+    if (numberInput < 1 || numberInput > 4) {
+      System.out.println("Seleção inválida.");
+      return false;
+    }
+
+    jogador.fireArrow();
+    Point position = new Point(jogador.getPosition());
+
+    switch (numberInput) {
+      case 1:
+        position.translate(-1, 0);
+        break;
+      case 2:
+        position.translate(0, 1);
+        break;
+      case 3:
+        position.translate(1, 0);
+        break;
+      case 4:
+        position.translate(0, -1);
+        break;
+    }
+
+    if (position.equals(wumpus.getPosition())) {
+      wumpus.die();
+      grid.removeTileEntity(position, wumpus.getId());
+      grid.removeAura(position, wumpus.getAuraId());
+    }
+
+    if (position.equals(lumpus.getPosition())) {
+      lumpus.die();
+      grid.removeTileEntity(position, lumpus.getId());
+      grid.removeAura(position, lumpus.getAuraId());
+    }
+
+    return true;
+  }
+
   private Point findPlacementPoint() {
     Random random = new Random();
 
@@ -264,6 +325,8 @@ public class GameManager {
             new Point(playerPosition.x, playerPosition.y - 1));
       case LOOT:
         return lootItem();
+      case FIRE:
+        return fireArrow();
       default:
         return false;
     }
