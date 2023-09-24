@@ -1,8 +1,5 @@
 import java.util.Random;
 
-import javax.swing.JOptionPane;
-import javax.swing.text.Position;
-
 import java.awt.Point;
 
 public class GameManager {
@@ -22,7 +19,6 @@ public class GameManager {
 
   private App uiApp;
 
-  private boolean gameOver = false;
   public boolean canMakeTurns = false;
 
   private Jogador jogador;
@@ -47,18 +43,17 @@ public class GameManager {
       pits[i] = new Pit();
       Point position = findPlacementPoint();
       pits[i].setPosition(position);
-      grid.addTileEntity(position, "Poço");
-      grid.addAura(pits[i].getPosition(), "Brisa");
+      grid.addTileEntity(position, pits[i].getId());
+      grid.addAura(pits[i].getPosition(), pits[i].getAuraId());
     }
 
     setPlayerPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
 
     Point wumpusPosition = findPlacementPoint();
-    setWumpusPosition(wumpusPosition);
+    setWumpusPosition(wumpus, wumpusPosition);
 
-    Point lumpusPosition =  findPlacementPoint();
-    setLumpusPosition(lumpusPosition);
-
+    Point lumpusPosition = findPlacementPoint();
+    setWumpusPosition(lumpus, lumpusPosition);
 
     Point goldPosition = findPlacementPoint();
     grid.addTileEntity(goldPosition, "Ouro");
@@ -67,18 +62,9 @@ public class GameManager {
   }
 
   public void endGame(String result) {
-    uiApp.update(gameOver, jogador, grid);
-    String input = null;
+    uiApp.update(jogador, grid);
 
-    if (result == VICTORY) {
-      System.out.println("Você venceu");
-      input  = JOptionPane.showInputDialog("Você venceu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");
-    }
-
-    if (result == DEFEAT) {
-      System.out.println("Você perdeu");
-      input  = JOptionPane.showInputDialog("Você perdeu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");
-    }
+    String input = uiApp.endGame(result);
 
     switch (input) {
       case "1":
@@ -86,7 +72,7 @@ public class GameManager {
         break;
       case "2":
         uiApp.dispose();
-       break;
+        break;
       default:
         endGame(result);
         break;
@@ -94,7 +80,7 @@ public class GameManager {
   }
 
   private void runNextTurn() {
-    uiApp.update(gameOver, jogador, grid);
+    uiApp.update(jogador, grid);
     runPlayerTurn();
   }
 
@@ -103,17 +89,21 @@ public class GameManager {
   }
 
   private void finishPlayerTurn() {
-    runEnemyTurn();
-    runEnemy2Turn();
+    runEnemyTurn(wumpus);
+    runEnemyTurn(lumpus);
     runNextTurn();
   }
 
-  private void runEnemyTurn() {
-    Point nextWumpusPosition = findNextWumpusPosition();
-    setWumpusPosition(nextWumpusPosition);
+  private void runEnemyTurn(Wumpus wumpus) {
+    setWumpusPosition(wumpus, findNextWumpusPosition(wumpus));
 
-    if (jogador.getPosition().equals(wumpus.getPosition()))
-      endGame(DEFEAT);
+    if (jogador.getPosition().equals(wumpus.getPosition())) {
+      jogador.takeDamage(wumpus.getPower());
+
+      if (jogador.getHealth() == 0) {
+        endGame(DEFEAT);
+      }
+    }
   }
 
   public void makeAction(String input) {
@@ -147,14 +137,27 @@ public class GameManager {
     }
 
     if (jogador.getPosition() != null) {
-      grid.removeTileEntity(jogador.getPosition(), "Player");
+      grid.removeTileEntity(jogador.getPosition(), jogador.getId());
     }
 
     jogador.setPosition(newPosition);
     grid.discoverTile(newPosition);
-    grid.addTileEntity(newPosition, "Player");
+    grid.addTileEntity(newPosition, jogador.getId());
 
     return true;
+  }
+
+  private void setWumpusPosition(Wumpus wumpus, Point newPosition) {
+    Point wumpusOldPosition = wumpus.getPosition();
+
+    if (wumpusOldPosition != null) {
+      grid.removeTileEntity(wumpusOldPosition, wumpus.getId());
+      grid.removeAura(wumpusOldPosition, wumpus.getAuraId());
+    }
+
+    wumpus.setPosition(newPosition);
+    grid.addTileEntity(newPosition, wumpus.getId());
+    grid.addAura(newPosition, wumpus.getAuraId());
   }
 
   private boolean lootItem() {
@@ -175,19 +178,6 @@ public class GameManager {
     return false;
   }
 
-  private void setWumpusPosition(Point newPosition) {
-    Point wumpusOldPosition = wumpus.getPosition();
-
-    if (wumpusOldPosition != null) {
-      grid.removeTileEntity(wumpusOldPosition, "Wumpus");
-      grid.removeAura(wumpusOldPosition, "Fedor");
-    }
-
-    wumpus.setPosition(newPosition);
-    grid.addTileEntity(newPosition, "Wumpus");
-    grid.addAura(newPosition, "Fedor");
-  }
-
   private Point findPlacementPoint() {
     Random random = new Random();
 
@@ -196,8 +186,8 @@ public class GameManager {
     boolean hasPit = true;
     Point position = new Point(x, y);
     while (x == INITIAL_POSITION_X && y == INITIAL_POSITION_Y || hasPit) {
-      x = random.nextInt(GRID_SIZE - 1);
-      y = random.nextInt(GRID_SIZE - 1);
+      x = random.nextInt(GRID_SIZE);
+      y = random.nextInt(GRID_SIZE);
       position.setLocation(x, y);
 
       hasPit = grid.hasPitOnPosition(position);
@@ -206,34 +196,48 @@ public class GameManager {
     return position;
   }
 
-  private Point findNextWumpusPosition() {
+  private Point findNextWumpusPosition(Wumpus wumpus) {
     Random random = new Random();
-    int randomNumber = random.nextInt(3);
+    int randomNumber = random.nextInt(4);
+    int randomDirection = random.nextInt(2) % 2 == 0 ? 1 : -1;
     Point wumpusPosition = wumpus.getPosition();
-    Point position = new Point(wumpusPosition);
+    Point newPosition = new Point(wumpusPosition);
+
+    String wumpusType = wumpus.getId();
+
+    int mainAxisJump = wumpusType == "Wumpus" ? 1 : 2;
+    int secondaryAxisJump = wumpusType == "Wumpus" ? 0 : randomDirection;
 
     switch (randomNumber) {
       case 0:
-        position = new Point(wumpusPosition.x + 1, wumpusPosition.y);
+        newPosition.setLocation(
+            wumpusPosition.x + mainAxisJump,
+            wumpusPosition.y + secondaryAxisJump);
         break;
       case 1:
-        position = new Point(wumpusPosition.x - 1, wumpusPosition.y);
+        newPosition.setLocation(
+            wumpusPosition.x - mainAxisJump,
+            wumpusPosition.y + secondaryAxisJump);
         break;
       case 2:
-        position = new Point(wumpusPosition.x, wumpusPosition.y + 1);
+        newPosition.setLocation(
+            wumpusPosition.x + secondaryAxisJump,
+            wumpusPosition.y + mainAxisJump);
         break;
       case 3:
-        position = new Point(wumpusPosition.x, wumpusPosition.y - 1);
+        newPosition.setLocation(
+            wumpusPosition.x + secondaryAxisJump,
+            wumpusPosition.y - mainAxisJump);
         break;
     }
 
-    boolean hasPit = grid.hasPitOnPosition(position);
+    boolean hasPit = grid.hasPitOnPosition(newPosition);
 
     if (hasPit) {
-      return findNextWumpusPosition();
+      return findNextWumpusPosition(wumpus);
     }
 
-    return position;
+    return newPosition;
   }
 
   private boolean getPlayerInput(String input) {
@@ -258,65 +262,4 @@ public class GameManager {
         return false;
     }
   }
-
-  private void runEnemy2Turn() {
-
-    Point nextLumpusPosition = findNextLumpusPosition();
-    setLumpusPosition(nextLumpusPosition);
-
-    if (jogador.getPosition().equals(lumpus.getPosition()))
-      jogador.setHealth(lumpus.attackPlayer(jogador.getHealth()));
-
-  }
-
-  private Point findNextLumpusPosition() {
-    Random random = new Random();
-    int randomNumber = random.nextInt(3);
-    Point lumpusPosition = lumpus.getPosition();
-    Point position = new Point(lumpusPosition);
-
-      switch (randomNumber) {
-        case 0:
-          position = new Point(lumpusPosition.x + 1, lumpusPosition.y);
-          position = new Point(position.x , moveXorY(position.y));
-          break;
-        case 1:
-          position = new Point(lumpusPosition.x - 1, lumpusPosition.y);
-          position = new Point(position.x , moveXorY(position.y));
-          break;
-        case 2:
-          position = new Point(lumpusPosition.x, lumpusPosition.y + 1);
-          position = new Point(moveXorY(position.x) , position.y);
-          break;
-        case 3:
-          position = new Point(lumpusPosition.x, lumpusPosition.y - 1);
-          position = new Point(moveXorY(position.x) , position.y);
-          break;
-    }
-
-    boolean hasPit = grid.hasPitOnPosition(position);
-
-    if (hasPit) {
-      return findNextLumpusPosition();
-    }
-
-    return position;
-  }
-
-  private int moveXorY (int position) {
-    Random random = new Random();
-    int randomNumber = random.nextInt(3);
-
-    position += randomNumber%2==0
-          ? 1
-          : -1;
-
-    return position;
-  }
-
-
-  private void setLumpusPosition(Point newPosition) {
-    lumpus.setPosition(newPosition);
-}
-
 }

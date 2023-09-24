@@ -33,8 +33,20 @@ public class App extends JFrame {
     setVisible(true);
   }
 
-  public void update(boolean isGameOver, Jogador jogador, Grid grid) {
+  public void update(Jogador jogador, Grid grid) {
     gridPanel.update(grid);
     statsPanel.update(jogador);
+  }
+
+  public String endGame(String result) {
+    if (result == "Victory") {
+      return JOptionPane.showInputDialog("Você venceu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");
+    }
+
+    if (result == "Defeat") {
+      return JOptionPane.showInputDialog("Você perdeu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");
+    }
+
+    return "";
   }
 }
