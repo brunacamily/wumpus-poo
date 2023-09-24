@@ -1,7 +1,5 @@
-
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 import java.awt.Point;
 
 public class GameManager {
@@ -19,16 +17,13 @@ public class GameManager {
 
   private boolean gameOver = false;
   public boolean canMakeTurns = false;
-  private int turnCount;
 
   private Jogador jogador;
   private Wumpus wumpus;
   private Pit[] pits;
   private Grid grid;
-  private Scanner scanner;
 
   public GameManager(App uiApp) {
-    scanner = new Scanner(System.in);
     this.uiApp = uiApp;
   }
 
@@ -52,34 +47,14 @@ public class GameManager {
     Point wumpusPosition = findPlacementPoint();
     setWumpusPosition(wumpusPosition);
 
-    turnCount = 0;
     runNextTurn();
   }
 
   public void endGame() {
-    String input = "0";
-
-    while (!input.equals("2")) {
-      System.out.println("Fim de jogo. Deseja jogar novamente?");
-      System.out.println("1. Sim");
-      System.out.println("2. Não");
-      input = scanner.nextLine();
-
-      if (input.equals("1")) {
-        startGame();
-      }
-
-      if (input.equals("2")) {
-        scanner.close();
-      }
-    }
   }
 
   private void runNextTurn() {
-    turnCount++;
     uiApp.update(gameOver, jogador, grid);
-    System.out.println();
-    System.out.println("Turno " + turnCount);
     runPlayerTurn();
   }
 
@@ -88,83 +63,24 @@ public class GameManager {
   }
 
   private void finishPlayerTurn() {
-    canMakeTurns = false;
     runEnemyTurn();
     runNextTurn();
   }
 
   private void runEnemyTurn() {
-    Point playerPosition = jogador.getPosition();
-    Point wumpusPosition = wumpus.getPosition();
-    double directionX = (double) playerPosition.x - wumpusPosition.x;
-    double directionY = (double) playerPosition.y - wumpusPosition.y;
-
-    int normalizedX = directionX >= 0
-        ? (int) Math.ceil(directionX / (GRID_SIZE - 1))
-        : (int) Math.floor(directionX / (GRID_SIZE - 1));
-
-    int normalizedY = directionY >= 0
-        ? (int) Math.ceil(directionY / (GRID_SIZE - 1))
-        : (int) Math.floor(directionY / (GRID_SIZE - 1));
-
-    Point newPositionX = new Point(wumpusPosition.x + normalizedX, wumpusPosition.y);
-    Point newPositionY = new Point(wumpusPosition.x, wumpusPosition.y + normalizedY);
-    boolean hasPitOnNewX = grid.hasPitOnPosition(newPositionX);
-    boolean hasPitOnNewY = grid.hasPitOnPosition(newPositionY);
-
-    // TODO: Ajustar IA do wumpus para não travar no poço.
-    if (hasPitOnNewX) {
-      setWumpusPosition(newPositionY);
-      return;
-    }
-
-    if (hasPitOnNewY) {
-      setWumpusPosition(newPositionX);
-      return;
-    }
-
-    if (normalizedX == 0) {
-      setWumpusPosition(new Point(newPositionY));
-      return;
-    }
-
-    if (normalizedY == 0) {
-      setWumpusPosition(new Point(newPositionX));
-      return;
-    }
-
-    if (Math.abs(directionX) < Math.abs(directionY)) {
-      setWumpusPosition(new Point(newPositionX));
-      return;
-    }
-
-    setWumpusPosition(new Point(newPositionY));
+    Point nextWumpusPosition = findNextWumpusPosition();
+    setWumpusPosition(nextWumpusPosition);
   }
 
   public void makeAction(String input) {
-    boolean hasInputSucceeded = false;
-
     if (canMakeTurns) {
-      if (input.equals(MOVE_UP)) {
-        hasInputSucceeded = setPlayerPosition(
-            new Point(jogador.getPosition().x - 1, jogador.getPosition().y));
-      }
-      if (input.equals(MOVE_RIGHT)) {
-        hasInputSucceeded = setPlayerPosition(
-            new Point(jogador.getPosition().x, jogador.getPosition().y + 1));
-      }
-      if (input.equals(MOVE_DOWN)) {
-        hasInputSucceeded = setPlayerPosition(
-            new Point(jogador.getPosition().x + 1, jogador.getPosition().y));
-      }
-      if (input.equals(MOVE_LEFT)) {
-        hasInputSucceeded = setPlayerPosition(
-            new Point(jogador.getPosition().x, jogador.getPosition().y - 1));
-      }
+      canMakeTurns = false;
+
+      boolean hasInputSucceeded = getPlayerInput(input);
 
       if (!hasInputSucceeded) {
-        System.out.println();
         System.out.println("Ação mal sucedida. Tente novamente.");
+        canMakeTurns = true;
       }
 
       if (hasInputSucceeded) {
@@ -174,8 +90,7 @@ public class GameManager {
   }
 
   private boolean setPlayerPosition(Point newPosition) {
-    if (!grid.isValidPosition(newPosition) || grid.hasPitOnPosition(newPosition)) {
-      System.out.println();
+    if (grid.hasPitOnPosition(newPosition)) {
       System.out.println("Posição nova inválida.");
       return false;
     }
@@ -185,12 +100,9 @@ public class GameManager {
     }
 
     jogador.setPosition(newPosition);
-    System.out.printf(
-        "Posição jogador: (%d, %d)\n",
-        jogador.getPosition().x,
-        jogador.getPosition().y);
     grid.discoverTile(newPosition);
     grid.addTileEntity(newPosition, "Player");
+
     return true;
   }
 
@@ -203,11 +115,6 @@ public class GameManager {
     wumpus.setPosition(newPosition);
     grid.addTileEntity(newPosition, "Wumpus");
     addAura(wumpus, "Fedor");
-
-    System.out.printf(
-        "Posição wumpus: (%d, %d)\n",
-        wumpus.getPosition().x,
-        wumpus.getPosition().y);
   }
 
   private Point[] getNearestPoints(Entity entity) {
@@ -259,5 +166,56 @@ public class GameManager {
     }
 
     return position;
+  }
+
+  private Point findNextWumpusPosition() {
+    Random random = new Random();
+    int randomNumber = random.nextInt(3);
+    Point wumpusPosition = wumpus.getPosition();
+    Point position = new Point(wumpusPosition);
+
+    switch (randomNumber) {
+      case 0:
+        position = new Point(wumpusPosition.x + 1, wumpusPosition.y);
+        break;
+      case 1:
+        position = new Point(wumpusPosition.x - 1, wumpusPosition.y);
+        break;
+      case 2:
+        position = new Point(wumpusPosition.x, wumpusPosition.y + 1);
+        break;
+      case 3:
+        position = new Point(wumpusPosition.x, wumpusPosition.y - 1);
+        break;
+    }
+
+    boolean hasPit = grid.hasPitOnPosition(position);
+
+    if (hasPit) {
+      return findNextWumpusPosition();
+    }
+
+    return position;
+  }
+
+  private boolean getPlayerInput(String input) {
+    Point playerPosition = jogador.getPosition();
+
+    switch (input) {
+      case MOVE_UP:
+        return setPlayerPosition(
+            new Point(playerPosition.x - 1, playerPosition.y));
+      case MOVE_RIGHT:
+        return setPlayerPosition(
+            new Point(playerPosition.x, playerPosition.y + 1));
+      case MOVE_DOWN:
+        return setPlayerPosition(
+            new Point(playerPosition.x + 1, playerPosition.y));
+      case MOVE_LEFT:
+        return setPlayerPosition(
+            new Point(playerPosition.x, playerPosition.y - 1));
+      default:
+        return false;
+    }
   }
 }
