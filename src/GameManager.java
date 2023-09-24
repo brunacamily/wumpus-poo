@@ -96,6 +96,24 @@ public class GameManager {
   }
 
   private void finishPlayerTurn() {
+    if (jogador.getPosition().equals(wumpus.getPosition())) {
+      jogador.takeDamage(wumpus.getPower());
+
+      if (jogador.getHealth() == 0) {
+        endGame(DEFEAT);
+        return;
+      }
+    }
+
+    if (jogador.getPosition().equals(lumpus.getPosition())) {
+      jogador.takeDamage(lumpus.getPower());
+
+      if (jogador.getHealth() == 0) {
+        endGame(DEFEAT);
+        return;
+      }
+    }
+
     if (!wumpus.isDead()) {
       runEnemyTurn(wumpus);
     }
