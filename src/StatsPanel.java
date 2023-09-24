@@ -8,10 +8,12 @@ import javax.swing.*;
 
 public class StatsPanel extends JPanel {
   JLabel hpLabel;
+  JLabel arrowsLabel;
   JLabel goldLabel;
 
   public StatsPanel() {
     hpLabel = new JLabel();
+    arrowsLabel = new JLabel();
     goldLabel = new JLabel();
     init();
   }
@@ -30,7 +32,7 @@ public class StatsPanel extends JPanel {
     hpLabel.setText("HP: 2/2");
     hpLabel.setFont(defaultFont);
     add(hpLabel, labelGbc);
-    JLabel arrowsLabel = new JLabel("Flechas");
+    arrowsLabel.setText("Flechas: 0");
     arrowsLabel.setFont(defaultFont);
     add(arrowsLabel, labelGbc);
     goldLabel.setText("PEGOU OURO");
@@ -45,6 +47,7 @@ public class StatsPanel extends JPanel {
 
   public void update(Jogador jogador) {
     hpLabel.setText("HP: " + jogador.getHealth() + "/2");
+    arrowsLabel.setText("Flechas: " + jogador.getArrows());
 
     if (jogador.hasGold()) {
       goldLabel.setVisible(true);

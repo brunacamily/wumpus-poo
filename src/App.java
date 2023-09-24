@@ -38,6 +38,11 @@ public class App extends JFrame {
     statsPanel.update(jogador);
   }
 
+  public String selectArrowDirection() {
+    return JOptionPane
+        .showInputDialog("Selecione a direção de disparo da flecha:\n1-Cima\n2-Direita\n3-Baixo\n4-Esquerda");
+  }
+
   public String endGame(String result) {
     if (result == "Victory") {
       return JOptionPane.showInputDialog("Você venceu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");

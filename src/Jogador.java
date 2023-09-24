@@ -4,7 +4,6 @@ public class Jogador extends Agente {
   private int battery;
   private int arrows;
   private boolean hasGold;
-  private int woods;
   private boolean hasCarryingWood;
 
   public Jogador() {
@@ -12,13 +11,8 @@ public class Jogador extends Agente {
     battery = 2;
     arrows = 0;
     hasGold = false;
-    woods = 0;
     hasCarryingWood = false;
     this.setId("Jogador");
-  }
-
-  public void addWood() {
-    woods++;
   }
 
   public void addArrow() {
@@ -29,12 +23,8 @@ public class Jogador extends Agente {
     hasGold = true;
   }
 
-  public void arrowAttack(Wumpus wumpus) {
+  public void fireArrow() {
     arrows--;
-    // TODO: Checar se wumpus está na posição de disparo
-    if (true) {
-      wumpus.killWumpus();
-    }
   }
 
   public int getHealth() {
@@ -55,10 +45,6 @@ public class Jogador extends Agente {
 
   public boolean hasGold() {
     return hasGold;
-  }
-
-  public int getWoods() {
-    return woods;
   }
 
   public boolean isCarryingWood() {
