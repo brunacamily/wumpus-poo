@@ -1,13 +1,14 @@
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 import java.awt.Point;
 
 public class GameManager {
   private static final int GRID_SIZE = 15;
-  private static final int INITIAL_POSITION_X = 14;
+  private static final int PITS_COUNT = 5;
+  private static final int INITIAL_POSITION_X = GRID_SIZE - 1;
   private static final int INITIAL_POSITION_Y = 0;
-  private static final int INITIAL_WUMPUS_POSITION_X = 0;
-  private static final int INITIAL_WUMPUS_POSITION_Y = 14;
 
   private static final String MOVE_UP = "1";
   private static final String MOVE_RIGHT = "2";
@@ -22,6 +23,7 @@ public class GameManager {
 
   private Jogador jogador;
   private Wumpus wumpus;
+  private Pit[] pits;
   private Grid grid;
   private Scanner scanner;
 
@@ -35,9 +37,20 @@ public class GameManager {
     grid = new Grid(GRID_SIZE);
     jogador = new Jogador();
     wumpus = new Wumpus();
+    pits = new Pit[PITS_COUNT];
+
+    for (int i = 0; i < PITS_COUNT; i++) {
+      pits[i] = new Pit();
+      Point position = findPlacementPoint();
+      pits[i].setPosition(position);
+      grid.addTileEntity(position, "Pit");
+      addAura(pits[i], "Brisa");
+    }
 
     setPlayerPosition(new Point(INITIAL_POSITION_X, INITIAL_POSITION_Y));
-    setWumpusPosition(new Point(INITIAL_WUMPUS_POSITION_X, INITIAL_WUMPUS_POSITION_Y));
+
+    Point wumpusPosition = findPlacementPoint();
+    setWumpusPosition(wumpusPosition);
 
     turnCount = 0;
     runNextTurn();
@@ -72,25 +85,10 @@ public class GameManager {
 
   private void runPlayerTurn() {
     canMakeTurns = true;
-
-    // while (!hasInputSucceeded) {
-    // System.out.println("Escolha a direção para se mover:");
-    // System.out.println("1. Cima:");
-    // System.out.println("2. Direita:");
-    // System.out.println("3. Baixo:");
-    // System.out.println("4. Esquerda:");
-
-    // String input = scanner.nextLine();
-
-    // hasInputSucceeded = makeAction(input);
-    // if (!hasInputSucceeded) {
-    // System.out.println();
-    // System.out.println("Ação mal sucedida. Tente novamente.");
-    // }
-    // }
   }
 
   private void finishPlayerTurn() {
+    canMakeTurns = false;
     runEnemyTurn();
     runNextTurn();
   }
@@ -102,19 +100,45 @@ public class GameManager {
     double directionY = (double) playerPosition.y - wumpusPosition.y;
 
     int normalizedX = directionX >= 0
-        ? (int) Math.ceil(directionX / 14)
-        : (int) Math.floor(directionX / 14);
+        ? (int) Math.ceil(directionX / (GRID_SIZE - 1))
+        : (int) Math.floor(directionX / (GRID_SIZE - 1));
 
     int normalizedY = directionY >= 0
-        ? (int) Math.ceil(directionY / 14)
-        : (int) Math.floor(directionY / 14);
+        ? (int) Math.ceil(directionY / (GRID_SIZE - 1))
+        : (int) Math.floor(directionY / (GRID_SIZE - 1));
 
-    if (Math.abs(directionX) < Math.abs(directionY)) {
-      setWumpusPosition(new Point(wumpusPosition.x, wumpusPosition.y + normalizedY));
+    Point newPositionX = new Point(wumpusPosition.x + normalizedX, wumpusPosition.y);
+    Point newPositionY = new Point(wumpusPosition.x, wumpusPosition.y + normalizedY);
+    boolean hasPitOnNewX = grid.hasPitOnPosition(newPositionX);
+    boolean hasPitOnNewY = grid.hasPitOnPosition(newPositionY);
+
+    // TODO: Ajustar IA do wumpus para não travar no poço.
+    if (hasPitOnNewX) {
+      setWumpusPosition(newPositionY);
       return;
     }
 
-    setWumpusPosition(new Point(wumpusPosition.x + normalizedX, wumpusPosition.y));
+    if (hasPitOnNewY) {
+      setWumpusPosition(newPositionX);
+      return;
+    }
+
+    if (normalizedX == 0) {
+      setWumpusPosition(new Point(newPositionY));
+      return;
+    }
+
+    if (normalizedY == 0) {
+      setWumpusPosition(new Point(newPositionX));
+      return;
+    }
+
+    if (Math.abs(directionX) < Math.abs(directionY)) {
+      setWumpusPosition(new Point(newPositionX));
+      return;
+    }
+
+    setWumpusPosition(new Point(newPositionY));
   }
 
   public void makeAction(String input) {
@@ -150,7 +174,7 @@ public class GameManager {
   }
 
   private boolean setPlayerPosition(Point newPosition) {
-    if (!grid.isValidPosition(newPosition)) {
+    if (!grid.isValidPosition(newPosition) || grid.hasPitOnPosition(newPosition)) {
       System.out.println();
       System.out.println("Posição nova inválida.");
       return false;
@@ -214,5 +238,26 @@ public class GameManager {
         grid.addTileEntity(point, value);
       }
     }
+  }
+
+  private Point findPlacementPoint() {
+    Random random = new Random();
+
+    int x = 0;
+    int y = 0;
+    boolean hasPit = true;
+    Point position = new Point(x, y);
+    while (x == INITIAL_POSITION_X && y == INITIAL_POSITION_Y || hasPit) {
+      x = random.nextInt(GRID_SIZE - 1);
+      y = random.nextInt(GRID_SIZE - 1);
+      position.setLocation(x, y);
+      ArrayList<String> entities = grid.getTileFromPosition(position).getEntities();
+
+      if (!entities.contains("Pit")) {
+        hasPit = false;
+      }
+    }
+
+    return position;
   }
 }
