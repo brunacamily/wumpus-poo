@@ -40,6 +40,10 @@ public class Jogador extends Agente {
     return health;
   }
 
+  public void setHealth(int health) {
+    this.health = health;
+  }
+
   public int getBattery() {
     return battery;
   }

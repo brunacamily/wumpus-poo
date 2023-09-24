@@ -1,4 +1,8 @@
 import java.util.Random;
+
+import javax.swing.JOptionPane;
+import javax.swing.text.Position;
+
 import java.awt.Point;
 
 public class GameManager {
@@ -23,6 +27,7 @@ public class GameManager {
 
   private Jogador jogador;
   private Wumpus wumpus;
+  private Lumpus lumpus;
   private Pit[] pits;
   private Grid grid;
 
@@ -35,6 +40,7 @@ public class GameManager {
     grid = new Grid(GRID_SIZE);
     jogador = new Jogador();
     wumpus = new Wumpus();
+    lumpus = new Lumpus();
     pits = new Pit[PITS_COUNT];
 
     for (int i = 0; i < PITS_COUNT; i++) {
@@ -50,6 +56,10 @@ public class GameManager {
     Point wumpusPosition = findPlacementPoint();
     setWumpusPosition(wumpusPosition);
 
+    Point lumpusPosition =  findPlacementPoint();
+    setLumpusPosition(lumpusPosition);
+
+
     Point goldPosition = findPlacementPoint();
     grid.addTileEntity(goldPosition, "Ouro");
 
@@ -58,13 +68,28 @@ public class GameManager {
 
   public void endGame(String result) {
     uiApp.update(gameOver, jogador, grid);
+    String input = null;
 
     if (result == VICTORY) {
       System.out.println("Você venceu");
+      input  = JOptionPane.showInputDialog("Você venceu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");
     }
 
     if (result == DEFEAT) {
       System.out.println("Você perdeu");
+      input  = JOptionPane.showInputDialog("Você perdeu!\n\tDeseja jogar novamente?\n1-Sim\n2-Não");
+    }
+
+    switch (input) {
+      case "1":
+        startGame();
+        break;
+      case "2":
+        uiApp.dispose();
+       break;
+      default:
+        endGame(result);
+        break;
     }
   }
 
@@ -79,12 +104,16 @@ public class GameManager {
 
   private void finishPlayerTurn() {
     runEnemyTurn();
+    runEnemy2Turn();
     runNextTurn();
   }
 
   private void runEnemyTurn() {
     Point nextWumpusPosition = findNextWumpusPosition();
     setWumpusPosition(nextWumpusPosition);
+
+    if (jogador.getPosition().equals(wumpus.getPosition()))
+      endGame(DEFEAT);
   }
 
   public void makeAction(String input) {
@@ -229,4 +258,65 @@ public class GameManager {
         return false;
     }
   }
+
+  private void runEnemy2Turn() {
+
+    Point nextLumpusPosition = findNextLumpusPosition();
+    setLumpusPosition(nextLumpusPosition);
+
+    if (jogador.getPosition().equals(lumpus.getPosition()))
+      jogador.setHealth(lumpus.attackPlayer(jogador.getHealth()));
+
+  }
+
+  private Point findNextLumpusPosition() {
+    Random random = new Random();
+    int randomNumber = random.nextInt(3);
+    Point lumpusPosition = lumpus.getPosition();
+    Point position = new Point(lumpusPosition);
+
+      switch (randomNumber) {
+        case 0:
+          position = new Point(lumpusPosition.x + 1, lumpusPosition.y);
+          position = new Point(position.x , moveXorY(position.y));
+          break;
+        case 1:
+          position = new Point(lumpusPosition.x - 1, lumpusPosition.y);
+          position = new Point(position.x , moveXorY(position.y));
+          break;
+        case 2:
+          position = new Point(lumpusPosition.x, lumpusPosition.y + 1);
+          position = new Point(moveXorY(position.x) , position.y);
+          break;
+        case 3:
+          position = new Point(lumpusPosition.x, lumpusPosition.y - 1);
+          position = new Point(moveXorY(position.x) , position.y);
+          break;
+    }
+
+    boolean hasPit = grid.hasPitOnPosition(position);
+
+    if (hasPit) {
+      return findNextLumpusPosition();
+    }
+
+    return position;
+  }
+
+  private int moveXorY (int position) {
+    Random random = new Random();
+    int randomNumber = random.nextInt(3);
+
+    position += randomNumber%2==0
+          ? 1
+          : -1;
+
+    return position;
+  }
+
+
+  private void setLumpusPosition(Point newPosition) {
+    lumpus.setPosition(newPosition);
+}
+
 }
